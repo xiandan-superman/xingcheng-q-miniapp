@@ -1,0 +1,62 @@
+<view class="page practice safe-bottom tab-page page-fade {{reduceMotion ? 'reduce-motion' : ''}}" style="padding-top:{{topPad}}px">
+  <!-- 自绘通知（替代 wx.showToast 系统样式） -->
+  <view wx:if="{{uvToast.show}}" class="uv-toast {{uvToast.type === 'err' ? 'uv-toast-err' : uvToast.type === 'star' ? '' : 'uv-toast-info'}}">
+    <text class="uv-toast-star">{{uvToast.type === 'err' ? '✗' : uvToast.type === 'star' ? '★' : '✦'}}</text>
+    <text class="uv-toast-txt">{{uvToast.text}}</text>
+    <view class="uv-toast-bar"></view>
+  </view>
+  <view class="p-hero">
+    <view class="p-hero-copy flex1">
+      <view class="eyebrow">ORBIT TRAINING</view>
+      <view class="page-title">星轨<text class="h-cyan">训练舱</text></view>
+      <view class="page-sub"><view>最多选 3 个薄弱知识点</view><view>按题库库存组题训练</view></view>
+      <view class="planned-tip">约 {{plannedCount}} 题 · 答完统一解析与自评</view>
+    </view>
+    <view wx:if="{{!loading && !message && !hasDraft}}" class="p-hero-q">
+      <xingcheng-q-story scene="idea-bubble" motion="{{reduceMotion ? 'still' : 'auto'}}" playToken="{{qPlayToken}}" size="272"/>
+    </view>
+  </view>
+  <view wx:if="{{loading}}" class="notice mt load-inline">
+  <xingcheng-q-scene scene="loading" motion="{{reduceMotion ? 'still' : 'auto'}}" size="200"/>
+  <view class="load-txt">正在读取知识点…</view>
+</view>
+<view wx:elif="{{message}}" class="notice mt system-error uv-taprow" bindtap="onShow" hover-class="uv-taprow-hover" hover-start-time="0" hover-stay-time="80"><xingcheng-q-scene scene="failure" motion="{{reduceMotion ? 'still' : 'auto'}}" size="144"/><view>{{message}} · 点击重试</view></view>
+
+  <view wx:if="{{hasDraft}}" class="resume-card card card-data mt uv-taprow" bindtap="continuePractice" hover-class="uv-taprow-hover">
+    <view class="flex1"><view class="resume-title">继续未完成的练习</view><view class="flow-hint">从上次保存的位置接续星轨 ›</view></view>
+    <xingcheng-q-scene scene="resume" motion="{{resumeMotion}}" size="168"/>
+  </view>
+  <button wx:if="{{reviewSessionId}}" class="btn btn-ghost btn-block mt" bindtap="continueReview">继续查看上次解析与自评</button>
+  <view class="sec-title">薄弱星轨坐标</view>
+  <view class="chips row wrap gap-s {{shake ? 'chips-shake' : ''}}">
+    <view wx:for="{{weakPoints}}" wx:key="id" data-id="{{item.id}}" bindtap="togglePoint"
+      class="kp-chip {{item.selected ? 'kp-on' : ''}} uv-taprow" hover-class="uv-taprow-hover" hover-start-time="0" hover-stay-time="80" >
+      <text class="kp-name">{{item.name}}</text>
+      <text wx:if="{{item.recommended && !item.selected}}" class="kp-rec">系统建议</text>
+      <text wx:if="{{item.selected}}" class="kp-check">✓</text>
+    </view>
+  </view>
+
+  <view class="select-tip row gap-s mt">
+    <image src="/assets/icons/ic-spark.png" mode="aspectFit" style="width:30rpx;height:30rpx"/>
+    <text>已选 {{selectedCount}}/3 条星轨，{{canSelectMore ? '一次校准 3 条星轨更稳' : '可以启航了'}}</text>
+  </view>
+
+  <view class="energy-card card card-data mt">
+    <view class="row gap between">
+      <view>
+        <view class="energy-title">本次能量包</view>
+        <view class="energy-big"><text class="big-num h-orange">{{selectedCount || 0}}</text><text> 个知识点</text></view>
+      </view>
+      <image src="/assets/icons/ic-spark.png" mode="aspectFit" style="width:72rpx;height:72rpx"/>
+    </view>
+    <view class="energy-note text-secondary">专项练习不计入每日星能打卡 · 约 {{plannedCount}} 题</view>
+  </view>
+
+  <view class="notice mt">
+    <image src="/assets/icons/ic-info.png" mode="aspectFit"/>
+    <text>星题不足时仍可先训练已匹配题目，不会让你转圈等待。</text>
+  </view>
+
+  <button class="btn btn-orange btn-block mt-l uv-press" disabled="{{starting || loading || !selectedCount}}" loading="{{starting}}" bindtap="start" hover-class="uv-press-hover" hover-start-time="0" hover-stay-time="120">进入训练舱</button>
+</view>

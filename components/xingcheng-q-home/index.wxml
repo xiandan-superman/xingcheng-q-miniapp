@@ -1,0 +1,13 @@
+<view class="home-motion" style="width:{{size}}rpx;height:{{size}}rpx" role="img" aria-label="星橙Q首页小剧场">
+  <view class="css-idle {{phase === 'css' ? 'is-visible is-playing' : ''}}">
+    <view class="idle-orb">
+      <image class="idle-body" src="/assets/xingcheng-q/static/home-body-stage2.png" mode="aspectFit"/>
+      <view class="idle-face">
+        <view class="idle-eye idle-eye-left"></view>
+        <view class="idle-eye idle-eye-right"></view>
+      </view>
+    </view>
+  </view>
+  <canvas wx:if="{{canvasReady}}" class="home-canvas {{phase === 'canvas' ? 'is-visible' : ''}}" type="2d" id="homeCanvas" style="width:{{size}}rpx;height:{{size}}rpx"></canvas>
+  <image class="home-fallback {{phase === 'fallback' ? 'is-visible' : ''}}" src="/assets/xingcheng-q/static/home-idle-discover-light.png" mode="aspectFit" style="width:{{size}}rpx;height:{{size}}rpx" aria-hidden="true"/>
+</view>

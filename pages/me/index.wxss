@@ -1,0 +1,193 @@
+/* ============ 我的页（顶部间距由 JS 精确注入） ============ */
+
+/* 档案卡 */
+.profile { padding: 30rpx 26rpx; }
+.profile-q {
+  width: 96rpx; height: 96rpx;
+  display: flex; flex-direction: row; align-items: center; justify-content: center;
+  flex: none;
+ background: transparent; }
+.profile-name {
+  font-family: "ZCOOL KuaiLe Local", sans-serif;
+  font-size: 34rpx;
+  margin-bottom: 4rpx;
+}
+
+/* 5 格数据 */
+.metrics {
+  display: flex; flex-direction: row;
+  padding: 26rpx 12rpx;
+}
+.metric {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6rpx;
+  position: relative;
+}
+.metric + .metric::before {
+  content: '';
+  position: absolute;
+  left: 0; top: 15%;
+  height: 70%;
+  width: 2rpx;
+  background: rgba(23,25,31,.12);
+}
+.metric-num {
+  font-family: "ZCOOL KuaiLe Local", sans-serif;
+  font-size: 36rpx;
+  color: var(--orange);
+  line-height: 1.1;
+}
+.metric-label { font-size: 19rpx; color: var(--muted); text-align: center; }
+
+/* 薄弱点 */
+.weak { padding: 28rpx 26rpx; }
+.weak-row { margin-bottom: 22rpx; }
+.weak-row:last-of-type { margin-bottom: 14rpx; }
+.weak-name { font-size: 26rpx; font-weight: 700; }
+.weak-pct { font-size: 24rpx; color: var(--orange); font-weight: 800; }
+.bar {
+  height: 18rpx;
+  margin-top: 10rpx;
+  background: var(--card);
+  border: 2rpx solid var(--ink);
+  border-radius: 99rpx;
+  overflow: hidden;
+}
+.bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--orange), var(--orange-tint));
+  border-radius: 99rpx;
+}
+.weak-cta { font-size: 21rpx; text-align: right; }
+
+/* 趋势 */
+.trend { padding: 26rpx; }
+.trend-title {
+  font-family: "ZCOOL KuaiLe Local", sans-serif;
+  font-size: 28rpx;
+}
+.chart-wrap { height: 200rpx; margin: 6rpx 0; }
+.trend-canvas { width: 100%; height: 200rpx; }
+.chart-days { font-size: 20rpx; color: var(--muted); padding: 0 6rpx; }
+
+/* 功能宫格 */
+.feature-grid {
+  display: flex;
+  flex-direction: row; /* 显式声明：部分运行时 flex 默认列方向，会把卡片竖着摞 */
+  flex-wrap: wrap;
+  gap: 20rpx;
+}
+.feature-card {
+  width: calc(33.33% - 14rpx);
+  box-sizing: border-box;
+  padding: 22rpx 18rpx;
+  display: flex;
+  flex-direction: column;
+  gap: 10rpx;
+}
+.feature-icon {
+  width: 64rpx; height: 64rpx;
+  background: var(--orange-bg);
+  border-radius: 16rpx;
+  padding: 10rpx;
+}
+.feature-title {
+  font-family: "ZCOOL KuaiLe Local", sans-serif;
+  font-size: 29rpx;
+}
+.feature-copy { font-size: 21rpx; color: var(--muted); }
+
+/* 菜单 */
+.menu { padding: 10rpx 26rpx; }
+.switch-row {
+  display: flex; flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  padding: 22rpx 0;
+  border-bottom: 2rpx dashed rgba(23,25,31,.12);
+}
+.menu-label { font-size: 27rpx; font-weight: 700; }
+.time-picker { font-size: 21rpx; color: var(--orange); margin-top: 4rpx; }
+.menu-item {
+  display: flex; flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  padding: 26rpx 0;
+  border-bottom: 2rpx dashed rgba(23,25,31,.12);
+  font-size: 27rpx;
+  background: none;
+  line-height: normal;
+}
+.menu-item:last-child { border-bottom: none; }
+.menu-tail { font-size: 22rpx; color: var(--muted); }
+.menu-item.danger { color: var(--red); }
+.menu-item.danger .menu-tail { color: var(--red); }
+
+/* 校准记录弹层 */
+.correction-item { padding: 22rpx; }
+.correction-type { font-size: 27rpx; font-weight: 800; }
+.correction-question { font-size: 24rpx; font-weight: 700; margin: 10rpx 0 4rpx; }
+.correction-copy {
+  margin-top: 10rpx;
+  font-size: 23rpx;
+  background: var(--cream);
+  border-radius: 12rpx;
+  padding: 12rpx 16rpx;
+}
+
+/* 星航功能区不被自定义 tab 挡住：tab≈116rpx + 安全区 */
+.page.me.safe-bottom {
+  padding-bottom: calc(360rpx + env(safe-area-inset-bottom)) !important;
+}
+
+/* R12：半屏贴底，padding 避开自定义 tabBar(116rpx)+安全区；空态不拉高、禁额外空白层 */
+.corr-overlay {
+  /* 遮罩到底，但 sheet 自身抬离 tabBar */
+}
+.corr-sheet-compact {
+  bottom: calc(116rpx + env(safe-area-inset-bottom)) !important;
+  max-height: 46vh !important;
+  padding: 18rpx 36rpx 24rpx !important;
+  overflow: hidden;
+  box-sizing: border-box;
+}
+.corr-sheet-compact.is-empty {
+  max-height: none !important;
+  height: auto !important;
+}
+.corr-sheet-compact.has-list {
+  max-height: 46vh !important;
+  display: flex;
+  flex-direction: column;
+}
+.correction-scroll {
+  flex: 1;
+  height: 0;
+  min-height: 120rpx;
+  max-height: 26vh;
+  width: 100%;
+}
+.correction-list { padding-bottom: 8rpx; }
+.correction-more { margin: 10rpx 0 16rpx; }
+.corr-empty {
+  padding: 12rpx 12rpx 8rpx;
+  text-align: center;
+}
+.corr-empty-title {
+  font-family: "ZCOOL KuaiLe Local", sans-serif;
+  font-size: 32rpx;
+  margin-bottom: 8rpx;
+}
+.corr-empty-sub { font-size: 22rpx; color: var(--muted); line-height: 1.45; }
+
+.correction-reply { margin-top: 16rpx; padding: 16rpx; border-radius: 16rpx; background: rgba(255, 181, 65, .10); }
+.correction-reply-title { font-size: 23rpx; font-weight: 700; margin-bottom: 8rpx; }
+.correction-date { margin-top: 12rpx; font-size: 21rpx; }
+.metrics-with-q { position:relative; padding-right:148rpx; }
+.metrics-q { position:absolute; right:8rpx; bottom:4rpx; width:136rpx; height:136rpx; }
+.reminder-success { position:fixed; left:32rpx; right:32rpx; bottom:calc(150rpx + env(safe-area-inset-bottom)); z-index:80; display:flex; align-items:center; gap:18rpx; padding:12rpx 22rpx; }
+.reminder-success-title { font-size:28rpx; font-weight:900; margin-bottom:6rpx; }
+.me-system-error { display:flex; flex-direction:column; align-items:center; text-align:center; }

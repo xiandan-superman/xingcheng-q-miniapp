@@ -1,0 +1,1 @@
+{ "usingComponents": { "xingcheng-q": "/components/xingcheng-q/index", "xingcheng-q-entry": "/components/xingcheng-q-entry/index", "xingcheng-q-scene": "/components/xingcheng-q-scene/index" }, "navigationBarTitleText": "启航" }

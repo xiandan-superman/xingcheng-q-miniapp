@@ -1,0 +1,4 @@
+{
+  "enablePullDownRefresh": true, "usingComponents": { "xingcheng-q": "/components/xingcheng-q/index", "xingcheng-q-home": "/components/xingcheng-q-home/index", "xingcheng-q-variety": "/components/xingcheng-q-variety/index", "xingcheng-q-scene": "/components/xingcheng-q-scene/index" },
+  "navigationBarTitleText": "每日一题 · 今日星题"
+}

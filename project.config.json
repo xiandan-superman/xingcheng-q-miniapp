@@ -1,0 +1,103 @@
+{
+  "appid": "wxb75e61d042c28169",
+  "projectname": "量子星橙-智练",
+  "description": "量子星橙智练微信原生小程序",
+  "compileType": "miniprogram",
+  "miniprogramRoot": "./",
+  "cloudfunctionRoot": "../cloudfunctions/",
+  "setting": {
+    "useCompilerPlugins": false,
+    "es6": true,
+    "enhance": true,
+    "postcss": true,
+    "minified": true,
+    "urlCheck": false,
+    "compileWorklet": false,
+    "uglifyFileName": false,
+    "uploadWithSourceMap": false,
+    "packNpmManually": false,
+    "packNpmRelationList": [],
+    "minifyWXSS": true,
+    "minifyWXML": true,
+    "localPlugins": false,
+    "disableUseStrict": false,
+    "condition": false,
+    "babelSetting": {
+      "ignore": [],
+      "disablePlugins": [],
+      "outputPath": ""
+    }
+  },
+  "condition": {},
+  "simulatorPluginLibVersion": {},
+  "packOptions": {
+    "ignore": [
+      {
+        "type": "folder",
+        "value": "_review-shots"
+      },
+      {
+        "type": "folder",
+        "value": "_confirm"
+      },
+      {
+        "type": "folder",
+        "value": "assets/xingcheng-q/motion"
+      },
+      {
+        "type": "folder",
+        "value": "assets/xingcheng-q/scene-actions"
+      },
+      {
+        "type": "folder",
+        "value": "assets/xingcheng-q/emotion"
+      },
+      {
+        "type": "folder",
+        "value": "assets/xingcheng-q/apng"
+      },
+      {
+        "type": "folder",
+        "value": "assets/xingcheng-q/formal-source"
+      },
+      {
+        "type": "folder",
+        "value": "assets/tabbar"
+      },
+      {
+        "type": "folder",
+        "value": "assets/ui"
+      },
+      {
+        "type": "file",
+        "value": "assets/fe-fe3c.png"
+      },
+      {
+        "type": "file",
+        "value": "README.md"
+      },
+      {
+        "type": "suffix",
+        "value": ".gif"
+      },
+      {
+        "type": "suffix",
+        "value": ".apng"
+      },
+      {
+        "type": "suffix",
+        "value": ".md"
+      },
+      {
+        "type": "glob",
+        "value": "**/*-loop.png"
+      },
+      {
+        "type": "glob",
+        "value": "**/.DS_Store"
+      }
+    ],
+    "include": []
+  },
+  "editorSetting": {}
+}

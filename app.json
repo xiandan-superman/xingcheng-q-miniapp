@@ -1,0 +1,56 @@
+{
+  "entryPagePath": "pages/onboarding/index",
+  "pages": [
+    "pages/onboarding/index",
+    "pages/home/index",
+    "pages/index/index",
+    "pages/today/index",
+    "pages/practice/index",
+    "pages/wrong/index",
+    "pages/me/index",
+    "pages/quiz/index",
+    "pages/result/index",
+    "pages/report/index",
+    "pages/motion-lab/index"
+  ],
+  "window": {
+    "navigationStyle": "custom",
+    "backgroundColor": "#fffdf4",
+    "backgroundTextStyle": "dark"
+  },
+  "tabBar": {
+    "custom": true,
+    "color": "#4B5563",
+    "selectedColor": "#FF8A2A",
+    "backgroundColor": "#FFFDF4",
+    "borderStyle": "white",
+    "list": [
+      {
+        "pagePath": "pages/today/index",
+        "text": "今日",
+        "iconPath": "assets/icons/tab-today.png",
+        "selectedIconPath": "assets/icons/tab-today-on.png"
+      },
+      {
+        "pagePath": "pages/practice/index",
+        "text": "练习",
+        "iconPath": "assets/icons/tab-practice.png",
+        "selectedIconPath": "assets/icons/tab-practice-on.png"
+      },
+      {
+        "pagePath": "pages/wrong/index",
+        "text": "错题",
+        "iconPath": "assets/icons/tab-wrong.png",
+        "selectedIconPath": "assets/icons/tab-wrong-on.png"
+      },
+      {
+        "pagePath": "pages/me/index",
+        "text": "我的",
+        "iconPath": "assets/icons/tab-me.png",
+        "selectedIconPath": "assets/icons/tab-me-on.png"
+      }
+    ]
+  },
+  "sitemapLocation": "sitemap.json",
+  "lazyCodeLoading": "requiredComponents"
+}

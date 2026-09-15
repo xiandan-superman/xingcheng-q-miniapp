@@ -1,0 +1,66 @@
+/* ============ 错题页（顶部间距由 JS 精确注入） ============ */
+
+.wrong-hero { align-items:center; gap:4rpx; min-height:200rpx; margin-bottom:4rpx; }
+.wrong-hero-copy { min-width:0; }
+.wrong-hero-copy .page-title { white-space:nowrap; }
+.wrong-hero-copy .page-sub { margin-top:8rpx; line-height:1.55; }
+.wrong-hero-q { flex:none; width:252rpx; height:252rpx; margin:-12rpx -32rpx -26rpx -18rpx; transform:translateY(28rpx); display:flex; align-items:center; justify-content:center; }
+
+.filter-block { margin: 16rpx 0 8rpx; }
+.filter-dim { margin-bottom: 14rpx; }
+.filter-dim-label {
+  font-size: 22rpx; font-weight: 800; color: var(--muted); margin-bottom: 8rpx;
+}
+.filter-scroll { white-space: nowrap; margin: 0 -36rpx; padding: 4rpx 36rpx 6rpx; }
+.filters { display: flex; flex-direction: row; }
+.filter-pill {
+  flex: none;
+  padding: 10rpx 24rpx;
+  font-size: 24rpx;
+  display: inline-flex; align-items: center; gap: 8rpx;
+}
+.filter-on { background: var(--yellow); box-shadow: 2rpx 3rpx 0 rgba(23,25,31,.85); }
+.filter-dot { width: 12rpx; height: 12rpx; border-radius: 50%; flex: none; }
+
+/* 错题卡 */
+.wrong-card { display: flex; flex-direction: row; padding: 0; overflow: hidden; }
+.wc-side { width: 10rpx; flex: none; }
+.side-err { background: var(--red); }
+.side-ok { background: var(--green); }
+.wc-body { flex: 1; min-width: 0; padding: 26rpx; }
+
+.wc-status {
+  display: inline-flex;
+  align-items: center;
+  font-size: 21rpx;
+  font-weight: 800;
+  padding: 6rpx 16rpx;
+  border-radius: 999rpx;
+  border: 2rpx solid var(--ink);
+  flex: none;
+}
+.wc-dot { width: 12rpx; height: 12rpx; border-radius: 50%; margin-right: 8rpx; }
+.st-err { background: var(--red-bg); color: var(--red-deep); }
+.st-err .wc-dot { background: var(--red); }
+.st-ok { background: var(--green-bg); color: var(--green-deep); }
+.st-ok .wc-dot { background: var(--green); }
+
+.wc-meta { font-size: 21rpx; margin: 12rpx 0 8rpx; }
+.wc-title {
+  font-size: 28rpx;
+  font-weight: 800;
+  line-height: 1.5;
+  padding-left: 16rpx;
+  margin-bottom: 18rpx;
+}
+.title-err { border-left: 6rpx solid var(--red); }
+.title-ok { border-left: 6rpx solid var(--green); }
+.wc-actions { flex-wrap: wrap; }
+.wc-end { font-size: 22rpx; padding: 10rpx 0 30rpx; }
+
+/* 已确认的页面细节优化：不修改角色选择器 */
+.wc-body { min-width:0; }
+.empty-sub { line-height:1.8; }
+.filter-pill { transition:background-color .18s ease; }
+.reduce-motion .filter-pill { transition:none; }
+.system-error { display:flex; flex-direction:column; align-items:center; text-align:center; }

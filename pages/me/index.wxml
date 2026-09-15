@@ -1,0 +1,146 @@
+<view class="page me safe-bottom tab-page page-fade {{reduceMotion ? 'reduce-motion' : ''}}" style="padding-top:{{topPad}}px">
+  <view class="page-title">我的<text class="hl">星籍</text>档案</view>
+  <view wx:if="{{message}}" class="notice mt me-system-error uv-taprow" bindtap="onShow" hover-class="uv-taprow-hover" hover-start-time="0" hover-stay-time="80"><xingcheng-q-scene scene="failure" motion="{{reduceMotion ? 'still' : 'auto'}}" size="144"/><view>{{message}} · 点击重试</view></view>
+
+  <!-- 档案卡 -->
+  <view class="profile card card-cream mt">
+    <view class="tape tape-orange"></view>
+    <view class="row gap between">
+      <view class="row gap">
+        <view class="profile-q"><xingcheng-q state="rest" animated="{{false}}" size="96"/></view>
+        <view>
+          <view class="profile-name">{{nickname}}</view>
+          <view class="text-secondary" style="font-size:22rpx">今天也让星光稳定一点</view>
+        </view>
+      </view>
+      <button class="btn btn-small btn-cyan-o uv-press" bindtap="editProfile" hover-class="uv-press-hover" hover-start-time="0" hover-stay-time="120">编辑星籍</button>
+    </view>
+  </view>
+
+  <!-- 学习星图：5 格数据 -->
+  <view class="sec-title">学习星图</view>
+  <view class="metrics card card-data metrics-with-q">
+    <view class="metric" wx:for="{{metrics}}" wx:key="label">
+      <text class="metric-num">{{item.num}}</text>
+      <text class="metric-label">{{item.label}}</text>
+    </view>
+    <view wx:if="{{!message && !reminderSuccess}}" class="metrics-q"><xingcheng-q-variety scene="moon-recharge" motion="{{reduceMotion ? 'still' : 'auto'}}" playToken="{{qPlayToken}}" loop="{{true}}" size="136"/></view>
+  </view>
+
+  <!-- 薄弱点 -->
+  <view class="sec-title">需要优先校准的星轨</view>
+  <view class="weak card uv-taprow" bindtap="goPracticeFromWeak" hover-class="uv-taprow-hover" hover-start-time="0" hover-stay-time="80" >
+    <view class="weak-row" wx:for="{{weakPoints}}" wx:key="name">
+      <view class="row between">
+        <text class="weak-name">{{item.name}}</text>
+        <text class="weak-pct">{{item.count}} 次错题关联</text>
+      </view>
+      <view class="bar"><view class="bar-fill" style="width:{{item.v}}%"></view></view>
+    </view>
+    <view class="weak-cta text-secondary">点击可按薄弱点进入训练舱 ›</view>
+  </view>
+
+  <!-- 趋势 -->
+  <view class="trend card mt">
+    <view class="row between mb-s">
+      <view class="trend-title">近 7 天星轨稳定度</view>
+      <text class="sticker sticker-yellow" style="transform:rotate(2deg)">{{accuracy}}%</text>
+    </view>
+    <view class="chart-wrap"><canvas type="2d" id="trendCanvas" class="trend-canvas"></canvas></view>
+    <view class="chart-days row between"><text wx:for="{{trendDays}}" wx:key="*this">{{item}}</text></view>
+  </view>
+
+  <!-- 功能入口 -->
+  <view class="sec-title">星航功能</view>
+  <view class="feature-grid">
+    <view class="feature-card card uv-taprow" bindtap="goReport" hover-class="uv-taprow-hover" hover-start-time="0" hover-stay-time="80" >
+      <image class="feature-icon" src="/assets/icons/ic-report.png" mode="aspectFit"/>
+      <text class="feature-title">星轨报告</text>
+      <text class="feature-copy">学习周报 ›</text>
+    </view>
+    <view class="feature-card card uv-taprow" bindtap="openCorrections" hover-class="uv-taprow-hover" hover-start-time="0" hover-stay-time="80" >
+      <image class="feature-icon" src="/assets/icons/ic-correction.png" mode="aspectFit"/>
+      <text class="feature-title">校准记录</text>
+      <text class="feature-copy">处理状态 ›</text>
+    </view>
+    <view class="feature-card card uv-taprow" bindtap="goSubjects" hover-class="uv-taprow-hover" hover-start-time="0" hover-stay-time="80" >
+      <image class="feature-icon" src="/assets/icons/ic-subjects.png" mode="aspectFit"/>
+      <text class="feature-title">星图领域</text>
+      <text class="feature-copy">{{subjectText}} ›</text>
+    </view>
+  </view>
+
+  <!-- 设置菜单 -->
+  <view class="menu card mt">
+    <view class="switch-row">
+      <view class="row gap-s">
+        <image src="/assets/icons/ic-reminder.png" mode="aspectFit" style="width:38rpx;height:38rpx"/>
+        <view>
+          <view class="menu-label">星能提醒</view>
+          <picker mode="time" value="{{reminderTime}}" bindchange="changeReminder">
+            <view class="time-picker">每天 {{reminderTime}} · 点击修改</view>
+          </picker>
+        </view>
+      </view>
+      <view class="uv-toggle {{remind ? 'is-on' : ''}}" hover-class="uv-toggle-hover" hover-start-time="0" hover-stay-time="120" bindtap="toggleRemind"><view class="uv-toggle-knob"></view></view>
+    </view>
+    <view class="switch-row">
+      <view class="row gap-s">
+        <image src="/assets/icons/ic-signal.png" mode="aspectFit" style="width:38rpx;height:38rpx"/>
+        <view>
+          <view class="menu-label">减少动态</view>
+          <view class="text-secondary" style="font-size:21rpx">使用静态关键帧与淡入淡出</view>
+        </view>
+      </view>
+      <view class="uv-toggle {{reduceMotion ? 'is-on' : ''}}" hover-class="uv-toggle-hover" hover-start-time="0" hover-stay-time="120" bindtap="toggleMotion"><view class="uv-toggle-knob"></view></view>
+    </view>
+    <view class="menu-item uv-taprow" data-title="星航隐私条款" bindtap="showPolicy" hover-class="uv-taprow-hover" hover-start-time="0" hover-stay-time="80" ><text>星航隐私条款</text><text class="menu-tail">查看全文 ›</text></view>
+    <view class="menu-item uv-taprow" data-title="星航用户协议" bindtap="showPolicy" hover-class="uv-taprow-hover" hover-start-time="0" hover-stay-time="80" ><text>星航用户协议</text><text class="menu-tail">查看全文 ›</text></view>
+    <view class="menu-item danger uv-taprow" bindtap="deleteAccount" hover-class="uv-taprow-hover" hover-start-time="0" hover-stay-time="80" ><text>注销星籍</text><text class="menu-tail">申请注销 ›</text></view>
+  </view>
+
+  <view wx:if="{{reminderSuccess}}" class="reminder-success card card-data">
+    <xingcheng-q-scene scene="reminder" motion="{{reduceMotion ? 'still' : 'auto'}}" size="168"/>
+    <view><view class="reminder-success-title">星能提醒已停靠</view><view class="text-secondary">每天 {{reminderTime}} 提醒你点亮星题</view></view>
+  </view>
+
+  <!-- 校准记录：半屏贴底，空态矮，避开自定义 tabBar -->
+  <view wx:if="{{showCorrections}}" class="overlay corr-overlay uv-taprow" bindtap="closeCorrections" hover-class="uv-taprow-hover" hover-start-time="0" hover-stay-time="80" >
+    <view class="sheet corr-sheet-compact {{correctionsList.length ? 'has-list' : 'is-empty'}}" catchtap="noop">
+      <view class="sheet-handle"></view>
+      <view class="row between mb-s">
+        <view>
+          <view class="eyebrow">CALIBRATION LOG</view>
+          <view class="sheet-title" style="text-align:left">星图校准记录</view>
+        </view>
+        <xingcheng-q state="notification" accessory="none" motion="still" size="56"/>
+      </view>
+      <scroll-view wx:if="{{correctionsList.length}}" scroll-y class="correction-scroll" enhanced show-scrollbar="{{true}}" lower-threshold="80" bindscrolltolower="loadMoreCorrections">
+        <view class="correction-list">
+          <view wx:for="{{correctionsList}}" wx:key="id" class="correction-item card card-warmline mb">
+            <view class="row between">
+              <text class="correction-type">{{item.type}}</text>
+              <text class="pill pill-soft-orange">{{item.status}}</text>
+            </view>
+            <view class="correction-question">{{item.question}}</view>
+            <view wx:if="{{item.summary}}" class="correction-copy">{{item.summary}}</view>
+            <view wx:if="{{item.adminReply}}" class="correction-reply">
+              <view class="correction-reply-title">处理回复</view>
+              <view class="correction-copy">{{item.adminReply}}</view>
+            </view>
+            <view class="text-secondary correction-date">提交于 {{item.createdAt}}</view>
+          </view>
+          <button wx:if="{{correctionsHasMore}}" class="btn btn-ghost btn-block correction-more uv-press" loading="{{correctionsLoading}}" disabled="{{correctionsLoading}}" bindtap="loadMoreCorrections" hover-class="uv-press-hover" hover-start-time="0" hover-stay-time="120">{{correctionsLoading ? '正在读取…' : '加载更早记录'}}</button>
+        </view>
+      </scroll-view>
+      <view wx:elif="{{correctionsLoading}}" class="corr-empty">
+        <view class="corr-empty-title">正在读取校准记录…</view>
+      </view>
+      <view wx:else class="corr-empty">
+        <view class="corr-empty-title">暂无校准记录</view>
+        <view class="corr-empty-sub">你在答题页提交的反馈会出现在这里。</view>
+      </view>
+      <button class="btn btn-yellow btn-block mt-s uv-press" bindtap="closeCorrections" hover-class="uv-press-hover" hover-start-time="0" hover-stay-time="120">收起记录</button>
+    </view>
+  </view>
+</view>

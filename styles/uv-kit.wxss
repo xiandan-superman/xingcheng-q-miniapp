@@ -1,0 +1,1326 @@
+/* ============================================================
+   uv-kit · 交互动效组件库
+   ------------------------------------------------------------
+   技法参考：Uiverse.io Galaxy（MIT）
+   https://github.com/uiverse-io/galaxy
+   原始组件多为纯 CSS + <input>/<label> 驱动，本文件已按 WXSS
+   能力重写，不引用任何外部资源、不新增图片与字体。
+
+   —— 六条改写规则 ——
+   1) px → rpx（×2）；1px 描边保留 1px，避免细线变粗
+   2) :hover / :active → hover-class（详见规则 6）
+   3) input:checked + label → class="{{on ? 'is-on' : ''}}"
+      （小程序原生控件跨组件选择器不生效，必须数据驱动）
+   4) 内联 <svg> → 纯 CSS 边框绘制 / data-uri 背景
+   5) 禁用 * 通配符与复杂 :nth-child(An+B)
+      —— WXSS 编译器会直接报 unexpected token，整包无法编译。
+      错峰延迟改由 WXML 上显式挂的 uv-d1..uv-d12 提供
+   6) 交互态一律用 hover-class，绝不写 :active
+      —— WXSS 不执行 :active / :hover / :focus（视图层独立渲染，
+      不走浏览器事件流），写了也是死的。这正是"按下去毫无反应"的根因。
+      统一写法：
+        hover-class="uv-xxx-hover" hover-start-time="0"
+      注意：hover-class 对应的规则里绝不能出现 !important，
+      否则小程序会把这条规则整条忽略。
+
+   7) transition / animation 简写里禁用 var(--token)
+      —— 部分开发者工具版本与真机内核不解析简写中的 CSS 变量，
+      整条声明被静默丢弃 → 全页过渡与动画全部失效（样式仍在，但不动）。
+      token 的字面值直接写死在本文件；颜色类 var(--ink) 等普通属性可照常使用。
+
+   —— 性能红线 ——
+   同一屏最多 2 个无限循环动画。新增循环请接入
+   utils/motion-lock.js 的 acquireHeavy/releaseHeavy。
+   本文件内 uv-orbit / uv-bar / uv-sk / uv-flow 均为循环动画。
+   ============================================================ */
+
+/* ========== 1. 统一按压 ========== */
+/* 所有可点区域的通用下沉反馈。
+   用法：
+     <view class="btn uv-press"
+           hover-class="uv-press-hover"
+           hover-start-time="0" hover-stay-time="120">按我</view>
+   —— 为什么不写 :active：WXSS 里 :active 永不触发，只有组件自带的
+   hover-class 能表达按下态。同理，本文件所有 -hover 规则都刻意不含
+   !important（含了会被小程序整条忽略）。 */
+.uv-press {
+  transition: transform .16s cubic-bezier(.22,1,.36,1),
+              box-shadow .16s cubic-bezier(.22,1,.36,1);
+}
+.uv-press-hover {
+  transform: translate(3rpx, 4rpx);
+  box-shadow: none;
+}
+
+/* ========== 2. 按压涟漪 ========== */
+/* 技法：Uiverse 按钮组件的 ::after 径向扩散
+   用法：在 uv-press uv-ripple 的基础上，hover-class="uv-ripple-hover"
+   （下沉 + 涟漪合成一个按下态），hover-stay-time 要 ≥ 动画时长，
+   否则松手瞬间涟漪被打断。 */
+.uv-ripple {
+  position: relative;
+  overflow: hidden;
+}
+.uv-ripple::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 16rpx;
+  height: 16rpx;
+  margin: -8rpx 0 0 -8rpx;
+  border-radius: 50%;
+  background: rgba(255, 138, 42, .5);
+  transform: scale(0);
+  opacity: 0;
+  pointer-events: none;
+}
+.uv-ripple-hover {
+  transform: translate(3rpx, 4rpx);
+  box-shadow: none;
+}
+.uv-ripple-hover::after {
+  animation: uv-ripple-out .52s cubic-bezier(.22,1,.36,1);
+}
+@keyframes uv-ripple-out {
+  0%   { transform: scale(0);   opacity: .55; }
+  100% { transform: scale(30);  opacity: 0; }
+}
+/* 深色底上的涟漪用白色，避免看不清 */
+.uv-ripple.is-light::after { background: rgba(255, 255, 255, .6); }
+
+/* ========== 3. 选择控件（按场景分四款，刻意不共用一套） ========== */
+/* 同样是"选中"，四个场景要解决的问题完全不同，所以拆开做：
+     A. uv-pick-card   整卡多选 —— 选项有名字有说明，勾只是附属
+     B. uv-check-lite  轻量勾选 —— 过法律门槛，必须低调到不抢主按钮
+     C. uv-opt-chip    互斥选项 —— 短标签快速扫，选中态落在视线所在处
+     D. uv-tag-pick    标签多选 —— 有配额，核心是"选满了没有"
+   三条共同约定：
+     · 按下态一律用变淡（opacity），不用位移 —— 选择控件按下去马上就
+       会改变状态，再叠一个位移会显得晃。
+     · 勾的朝向：border-right + border-bottom 转 45°，且宽必须小于高，
+       否则出来是"V"不是"✓"。
+     · 勾的视觉重心比它自己的盒子中心低约 0.35×宽，所以要往上挪一点才居中。 */
+
+/* —— A. 整卡多选（onboarding · 选星图领域）—— */
+/* 用法：
+   <view class="uv-pick-card uv-taprow {{on ? 'is-on' : ''}}"
+         hover-class="uv-taprow-hover" hover-start-time="0" bindtap="...">
+     卡内容…
+     <view class="uv-pick-mark"></view>
+   </view> */
+.uv-pick-card {
+  position: relative;
+  padding: 26rpx 30rpx;
+  background: var(--card);
+  border: 3rpx solid var(--ink);
+  border-radius: 20rpx;
+  box-shadow: 5rpx 6rpx 0 rgba(23, 25, 31, .16);
+  transition: background .26s cubic-bezier(.22,1,.36,1),
+              box-shadow .26s cubic-bezier(.22,1,.36,1),
+              transform .26s cubic-bezier(.22,1,.36,1);
+}
+.uv-pick-card.is-on {
+  background: var(--yellow);
+  box-shadow: 2rpx 3rpx 0 rgba(23, 25, 31, .8);
+  transform: translate(3rpx, 3rpx);
+}
+.uv-pick-mark {
+  position: absolute;
+  top: -14rpx;
+  right: -14rpx;
+  width: 52rpx;
+  height: 52rpx;
+  display: flex; flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  background: var(--orange);
+  border: 3rpx solid var(--ink);
+  border-radius: 14rpx;
+  box-shadow: 2rpx 3rpx 0 rgba(23, 25, 31, .55);
+  opacity: 0;
+  transform: scale(.4) rotate(10deg);
+  transition: opacity .16s cubic-bezier(.22,1,.36,1),
+              transform .26s cubic-bezier(.22,1.4,.5,1);
+}
+.uv-pick-mark::after {
+  content: '';
+  width: 16rpx;
+  height: 26rpx;
+  border-right: 5rpx solid #FFFDF4;
+  border-bottom: 5rpx solid #FFFDF4;
+  border-radius: 2rpx;
+  transform: translate(0, -6rpx) rotate(45deg);
+}
+.uv-pick-card.is-on .uv-pick-mark {
+  opacity: 1;
+  transform: scale(1) rotate(10deg);
+}
+
+/* —— B. 协议勾选（onboarding · 同意协议）—— */
+/* 体积不变、不抢视线，但把"素"做掉：
+     · 描边从 2rpx 提到 3rpx（和全站一致），槽内有凹陷感 —— 像一张待勾的空格
+     · 选中：纸白 → 荧光黄，凹槽反成凸起的贴纸，墨色粗勾逐格长出来
+     · 选中瞬间向外弹一圈橙晕，给"我勾上了"一个明确信号
+   轻的是体积，不是精致度。
+   对勾技法参考 Uiverse.io 的 checkbox（stroke 逐格生长）。小程序不支持内联 SVG，
+   改用两段 border 逐格长出来还原"一笔写完"的手感。
+   用法：
+     <view class="uv-check-lite {{on ? 'is-on' : ''}}">
+       <view class="uv-check-lite-mark"></view>
+     </view> */
+.uv-check-lite {
+  position: relative;
+  box-sizing: border-box;
+  width: 44rpx;
+  height: 44rpx;
+  flex: none;
+  display: flex; flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  background: #FFFDF4;
+  border: 3rpx solid var(--ink);
+  border-radius: 13rpx;
+  box-shadow: inset 0 3rpx 0 rgba(23, 25, 31, .10),
+              0 2rpx 0 rgba(23, 25, 31, .16);
+  transition: background .26s cubic-bezier(.22,1,.36,1),
+              box-shadow .26s cubic-bezier(.22,1,.36,1),
+              transform .26s cubic-bezier(.22,1.4,.5,1);
+}
+/* 未选时的凹陷空槽 */
+.uv-check-lite::before {
+  content: '';
+  position: absolute;
+  top: 4rpx;
+  right: 4rpx;
+  bottom: 4rpx;
+  left: 4rpx;
+  border-radius: 7rpx;
+  background: rgba(23, 25, 31, .085);
+  transition: opacity .26s cubic-bezier(.22,1,.36,1);
+}
+/* 选中瞬间的橙色扩散环 */
+.uv-check-lite::after {
+  content: '';
+  position: absolute;
+  top: -3rpx;
+  right: -3rpx;
+  bottom: -3rpx;
+  left: -3rpx;
+  border-radius: 16rpx;
+  border: 3rpx solid var(--orange);
+  opacity: 0;
+}
+.uv-check-lite.is-on {
+  background: var(--yellow);
+  box-shadow: inset 0 -4rpx 0 rgba(23, 25, 31, .18),
+              1rpx 2rpx 0 rgba(23, 25, 31, .45);
+  transform: translate(1rpx, 1rpx);
+}
+.uv-check-lite.is-on::before { opacity: 0; }
+.uv-check-lite.is-on::after { animation: uv-lite-burst .52s cubic-bezier(.22,1,.36,1); }
+@keyframes uv-lite-burst {
+  0%   { opacity: .85; transform: scale(.82); }
+  100% { opacity: 0;   transform: scale(1.55); }
+}
+.uv-check-lite-mark {
+  position: relative;
+  width: 0;
+  height: 0;
+  border-right: 5rpx solid var(--ink);
+  border-bottom: 5rpx solid var(--ink);
+  border-radius: 2rpx;
+  opacity: 0;
+  transform: translate(0, -5rpx) rotate(45deg);
+}
+.uv-check-lite.is-on .uv-check-lite-mark {
+  opacity: 1;
+  animation: uv-lite-draw .32s cubic-bezier(.22,1,.36,1) forwards;
+}
+@keyframes uv-lite-draw {
+  0%   { width: 0;     height: 0; }
+  45%  { width: 0;     height: 17rpx; }
+  100% { width: 21rpx; height: 17rpx; }
+}
+
+/* —— C. 互斥选项（quiz / result · 这题错在哪）—— */
+/* 横向标签流。短标签比"竖排圆点 + 文字"省一半高度，
+   而且选中态就落在视线所在处，不用把眼睛挪到左边去找圆点。 */
+.uv-opt-chips {
+  display: flex; flex-direction: row;
+  flex-wrap: wrap;
+  gap: 14rpx;
+}
+.uv-opt-chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 20rpx 34rpx;
+  background: var(--card);
+  border: 3rpx solid var(--ink);
+  border-radius: 999rpx;
+  font-size: 27rpx;
+  font-weight: 700;
+  box-shadow: 3rpx 4rpx 0 rgba(23, 25, 31, .16);
+  transition: background .26s cubic-bezier(.22,1,.36,1),
+              color .26s cubic-bezier(.22,1,.36,1),
+              box-shadow .26s cubic-bezier(.22,1,.36,1),
+              transform .26s cubic-bezier(.22,1,.36,1),
+              opacity .16s cubic-bezier(.22,1,.36,1);
+}
+.uv-opt-chip-hover { opacity: .72; }
+.uv-opt-chip.is-on {
+  background: var(--ink);
+  color: var(--cream-hi);
+  box-shadow: none;
+  transform: translate(3rpx, 3rpx);
+}
+
+/* —— D. 带配额的标签多选（practice · 选 3 条薄弱点）—— */
+/* 这里的关键不是"选没选"，而是"选满了没有"。
+   选满后剩余标签直接变灰、点不动，让人在点之前就知道到顶了，
+   而不是点了才被抖一下。 */
+.uv-tag-pick {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  padding: 18rpx 30rpx;
+  background: var(--card);
+  border: 3rpx solid var(--ink);
+  border-radius: 16rpx;
+  font-size: 26rpx;
+  font-weight: 700;
+  box-shadow: 3rpx 4rpx 0 rgba(23, 25, 31, .18);
+  transition: background .26s cubic-bezier(.22,1,.36,1),
+              color .26s cubic-bezier(.22,1,.36,1),
+              box-shadow .26s cubic-bezier(.22,1,.36,1),
+              transform .26s cubic-bezier(.22,1,.36,1),
+              opacity .16s cubic-bezier(.22,1,.36,1);
+}
+.uv-tag-pick-hover { opacity: .74; }
+.uv-tag-pick.is-on {
+  background: var(--yellow);
+  box-shadow: 2rpx 3rpx 0 rgba(23, 25, 31, .78);
+  transform: translate(2rpx, 3rpx);
+}
+.uv-tag-pick.is-blocked {
+  background: var(--disabled);
+  border-color: rgba(23, 25, 31, .26);
+  color: rgba(23, 25, 31, .36);
+  box-shadow: none;
+}
+.uv-tag-pick-mark {
+  position: absolute;
+  top: -12rpx;
+  right: -12rpx;
+  width: 34rpx;
+  height: 34rpx;
+  display: flex; flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  background: var(--orange);
+  border: 2rpx solid var(--ink);
+  border-radius: 9rpx;
+  opacity: 0;
+  transform: scale(.4) rotate(10deg);
+  transition: opacity .16s cubic-bezier(.22,1,.36,1),
+              transform .26s cubic-bezier(.22,1.4,.5,1);
+}
+.uv-tag-pick-mark::after {
+  content: '';
+  width: 10rpx;
+  height: 16rpx;
+  border-right: 4rpx solid #FFFDF4;
+  border-bottom: 4rpx solid #FFFDF4;
+  border-radius: 2rpx;
+  transform: translate(0, -4rpx) rotate(45deg);
+}
+.uv-tag-pick.is-on .uv-tag-pick-mark {
+  opacity: 1;
+  transform: scale(1) rotate(10deg);
+}
+
+/* ========== 4. 星夜开关 ========== */
+/* 上一版"奶油凹槽 + 白圆滑块"被否了——就是个 iOS 仿品，和贴纸体系不搭。
+   状态语义优先（用户反馈：黄槽/蓝槽两边都鲜艳，看不出谁开谁关）：
+     · 关 = 灰米色安静槽 + 太阳滑块（右侧带"关"字）
+     · 开 = 亮橙能量槽 + 星点 + 月亮滑块（左侧带"开"字，月亮带光晕）
+   颜色即状态：灰=关、亮橙=开，日/月只是装饰皮，不再承担状态表意。
+     · 描边、硬阴影与全站贴纸同源；按下整块下沉、滑块被捏扁
+   兼容：星点用多层 radial-gradient，不是 conic-gradient，安卓老内核无包袱。
+   用法不变：
+     <view class="uv-toggle {{on ? 'is-on' : ''}}"
+           hover-class="uv-toggle-hover" hover-start-time="0"
+           bindtap="onToggle"><view class="uv-toggle-knob"></view></view>
+   —— 槽 128rpx × 64rpx，滑块 52rpx，行程 64rpx。 */
+.uv-toggle {
+  position: relative;
+  box-sizing: border-box;
+  width: 128rpx;
+  height: 64rpx;
+  flex: none;
+  background: linear-gradient(180deg, #E9E2D0 0%, #F4EEDA 100%);
+  border: 3rpx solid var(--ink);
+  border-radius: 999rpx;
+  box-shadow: inset 0 4rpx 6rpx -2rpx rgba(23, 25, 31, .30),
+              inset 0 -2rpx 0 rgba(255, 255, 255, .45),
+              4rpx 5rpx 0 rgba(23, 25, 31, .20);
+  transition: transform .26s cubic-bezier(.22,1,.36,1),
+              box-shadow .26s cubic-bezier(.22,1,.36,1);
+}
+/* 夜空层：默认透明，开启时淡入盖住白天 */
+.uv-toggle::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  border-radius: 999rpx;
+  background:
+    radial-gradient(circle at 20% 38%, rgba(255,255,255,.95) 0, rgba(255,255,255,.95) 2.5rpx, transparent 3.5rpx),
+    radial-gradient(circle at 34% 66%, rgba(255,255,255,.65) 0, rgba(255,255,255,.65) 2rpx, transparent 3rpx),
+    radial-gradient(circle at 44% 30%, rgba(255,255,255,.85) 0, rgba(255,255,255,.85) 2rpx, transparent 3rpx),
+    radial-gradient(circle at 13% 70%, rgba(255,255,255,.85) 0, rgba(255,255,255,.85) 1.5rpx, transparent 2.5rpx),
+    linear-gradient(180deg, #FFB13D 0%, #FF8A2A 55%, #F04424 100%);
+  opacity: 0;
+  transition: opacity .26s cubic-bezier(.22,1,.36,1);
+}
+.uv-toggle.is-on::before { opacity: 1; }
+.uv-toggle.is-on {
+  box-shadow: inset 0 4rpx 6rpx -2rpx rgba(120, 30, 0, .55),
+              inset 0 -2rpx 0 rgba(255, 255, 255, .30),
+              4rpx 5rpx 0 rgba(240, 68, 36, .45);
+}
+.uv-toggle-knob {
+  position: absolute;
+  top: 3rpx;
+  left: 3rpx;
+  width: 52rpx;
+  height: 52rpx;
+  z-index: 3;
+  background: radial-gradient(circle at 32% 28%, #FFD84D 0%, #FF9E3D 55%, #FF8A2A 100%);
+  border: 3rpx solid var(--ink);
+  border-radius: 999rpx;
+  box-shadow: 0 0 0 4rpx rgba(255, 253, 244, .90),
+              inset 0 3rpx 0 rgba(255, 255, 255, .55),
+              2rpx 3rpx 0 rgba(23, 25, 31, .60);
+  transition: transform .3s cubic-bezier(.22,1.4,.5,1),
+              box-shadow .26s cubic-bezier(.22,1,.36,1);
+}
+/* 月面：奶油覆盖层 + 两枚环形山，开启时淡入盖住太阳 */
+.uv-toggle-knob::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  border-radius: 999rpx;
+  background:
+    radial-gradient(circle at 36% 34%, rgba(23,25,31,.16) 0, rgba(23,25,31,.16) 4rpx, transparent 5rpx),
+    radial-gradient(circle at 62% 62%, rgba(23,25,31,.12) 0, rgba(23,25,31,.12) 3rpx, transparent 4rpx),
+    linear-gradient(180deg, #FFFDF4 0%, #FFEFC9 100%);
+  opacity: 0;
+  transform: scale(.7);
+  transition: opacity .22s cubic-bezier(.22,1,.36,1),
+              transform .3s cubic-bezier(.22,1.4,.5,1);
+}
+.uv-toggle.is-on .uv-toggle-knob {
+  transform: translateX(64rpx);
+  box-shadow: 0 0 10rpx rgba(255, 193, 77, .95),
+              inset 0 3rpx 0 rgba(255, 255, 255, .80),
+              2rpx 3rpx 0 rgba(120, 40, 0, .45);
+}
+.uv-toggle.is-on .uv-toggle-knob::after { opacity: 1; transform: scale(1); }
+/* 状态小字：关态在右侧写"关"，开态在左侧写"开"——彻底消灭歧义 */
+.uv-toggle::after {
+  content: '关';
+  position: absolute;
+  top: 50%;
+  right: 13rpx;
+  z-index: 2;
+  transform: translateY(-50%);
+  font-size: 21rpx;
+  font-weight: 900;
+  color: rgba(23, 25, 31, .42);
+  letter-spacing: 2rpx;
+  transition: opacity .2s cubic-bezier(.22,1,.36,1);
+}
+.uv-toggle.is-on::after {
+  content: '开';
+  right: auto;
+  left: 13rpx;
+  color: #FFFDF4;
+  text-shadow: 1rpx 1rpx 0 rgba(120, 30, 0, .55);
+}
+/* 按下：整块下沉 + 滑块横向捏扁（scaleX 中心对称，不会顶到槽边） */
+.uv-toggle-hover {
+  transform: translate(2rpx, 3rpx);
+  box-shadow: inset 0 4rpx 6rpx -2rpx rgba(23, 25, 31, .36),
+              inset 0 -2rpx 0 rgba(255, 255, 255, .45),
+              2rpx 2rpx 0 rgba(23, 25, 31, .22);
+}
+.uv-toggle-hover .uv-toggle-knob { transform: scaleX(1.12); }
+.uv-toggle-hover.is-on {
+  box-shadow: inset 0 4rpx 6rpx -2rpx rgba(120, 30, 0, .60),
+              inset 0 -2rpx 0 rgba(255, 255, 255, .30),
+              2rpx 2rpx 0 rgba(240, 68, 36, .45);
+}
+.uv-toggle-hover.is-on .uv-toggle-knob { transform: translateX(64rpx) scaleX(1.12); }
+
+
+/* ========== 5. 骨架屏 ========== */
+/* 替代裸文字"正在读取…"，降低加载焦虑 */
+.uv-sk {
+  position: relative;
+  overflow: hidden;
+  background: var(--disabled);
+  border-radius: 12rpx;
+  height: 28rpx;
+}
+.uv-sk::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  background: linear-gradient(90deg,
+    rgba(255, 255, 255, 0),
+    rgba(255, 255, 255, .9),
+    rgba(255, 255, 255, 0));
+  transform: translateX(-100%);
+  animation: uv-shimmer 1.3s ease-in-out infinite;
+}
+@keyframes uv-shimmer {
+  100% { transform: translateX(100%); }
+}
+.uv-sk-lg { height: 44rpx; }
+.uv-sk-block { height: 180rpx; border-radius: 20rpx; }
+.uv-sk + .uv-sk { margin-top: 18rpx; }
+.uv-sk-w60 { width: 60%; }
+.uv-sk-w40 { width: 40%; }
+.uv-sk-w80 { width: 80%; }
+
+/* ========== 6. 流光进度 ========== */
+/* 加到已有的 gp-fill / bar-fill / beam-seg 上即可，不改结构 */
+.uv-flow {
+  position: relative;
+  overflow: hidden;
+}
+.uv-flow::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: 34%;
+  background: linear-gradient(90deg,
+    rgba(255, 255, 255, 0),
+    rgba(255, 255, 255, .55),
+    rgba(255, 255, 255, 0));
+  animation: uv-flow 1.9s ease-in-out infinite;
+}
+/* 扫一道、停一拍，比匀速硬扫稳，长驻页面也不躁 */
+@keyframes uv-flow {
+  0%        { transform: translateX(-110%); }
+  62%, 100% { transform: translateX(320%); }
+}
+
+/* ========== 6b. 分段进度 ========== */
+/* 上一版是 5 个纯橙矩形，像一排色块。这一版：
+     · 槽：内凹的纸色胶囊（空槽是有深度的，不是一块白）
+     · 填充：比槽小一圈的内嵌胶囊，橙→深橙渐变 + 上沿高光，从左端展开
+     · 正在亮的那段做"挤压弹跳"（横向先扁后弹），比单纯放大更有物理感
+   内凹槽 + 外凸填充的对比，是 Uiverse.io 进度条类组件最常用的一招。
+   用法：
+     <view class="uv-segs">
+       <view wx:for="{{segs}}" wx:key="*this"
+         class="uv-seg {{index < lit ? 'is-on' : ''}} {{index === lit - 1 ? 'is-tip' : ''}}">
+       </view>
+     </view> */
+.uv-segs {
+  display: flex; flex-direction: row;
+  align-items: center;
+  gap: 12rpx;
+}
+.uv-seg {
+  position: relative;
+  box-sizing: border-box;
+  flex: 1;
+  height: 36rpx;
+  background: #FFFDF4;
+  border: 3rpx solid var(--ink);
+  border-radius: 999rpx;
+  box-shadow: inset 0 4rpx 6rpx -2rpx rgba(23, 25, 31, .26);
+  transition: box-shadow .26s cubic-bezier(.22,1,.36,1),
+              transform .26s cubic-bezier(.22,1.4,.5,1);
+}
+.uv-seg::before {
+  content: '';
+  position: absolute;
+  top: 3rpx;
+  right: 3rpx;
+  bottom: 3rpx;
+  left: 3rpx;
+  border-radius: 999rpx;
+  background: linear-gradient(180deg, #FFC24D 0%, #FF8A2A 52%, #E23A18 100%);
+  box-shadow: inset 0 3rpx 0 rgba(255, 255, 255, .55),
+              inset 0 -2rpx 0 rgba(120, 30, 0, .28);
+  opacity: 0;
+  transform: scaleX(.25);
+  transform-origin: left center;
+  transition: opacity .26s cubic-bezier(.22,1,.36,1),
+              transform .34s cubic-bezier(.22,1,.36,1);
+}
+.uv-seg.is-on::before { opacity: 1; transform: scaleX(1); }
+.uv-seg.is-on {
+  box-shadow: inset 0 4rpx 6rpx -2rpx rgba(120, 30, 0, .35),
+              0 2rpx 0 rgba(23, 25, 31, .28);
+}
+.uv-seg.is-tip { animation: uv-seg-pop .42s cubic-bezier(.22,1.4,.5,1); }
+@keyframes uv-seg-pop {
+  0%   { transform: scaleX(.82) scaleY(1.22); }
+  58%  { transform: scaleX(1.06) scaleY(.93); }
+  100% { transform: scaleX(1) scaleY(1); }
+}
+
+/* ========== 6c. 可点整行的弱按下态 ========== */
+/* 整行可点（选科行、设置行）不适用位移，用变淡代替。
+   用法：class="row uv-taprow" hover-class="uv-taprow-hover" */
+.uv-taprow { transition: opacity .16s cubic-bezier(.22,1,.36,1); }
+.uv-taprow-hover { opacity: .7; }
+
+/* ========== 7. 错峰入场 ========== */
+/* 替代手写 card-in-d1 / d2 / d3，支持到 12 项。
+   延迟不依赖结构选择器，由 WXML 显式挂类：
+   <view class="uv-stagger">
+     <view class="uv-stagger-item uv-d{{index > 11 ? 12 : index + 1}}"> */
+.uv-stagger .uv-stagger-item {
+  animation: uv-rise .34s cubic-bezier(.22,1,.36,1) both;
+}
+@keyframes uv-rise {
+  from { transform: translateY(26rpx); opacity: 0; }
+  to   { transform: translateY(0);     opacity: 1; }
+}
+.uv-d1 { animation-delay: .02s; }
+.uv-d2 { animation-delay: .06s; }
+.uv-d3 { animation-delay: .10s; }
+.uv-d4 { animation-delay: .14s; }
+.uv-d5 { animation-delay: .18s; }
+.uv-d6 { animation-delay: .22s; }
+.uv-d7 { animation-delay: .26s; }
+.uv-d8 { animation-delay: .30s; }
+.uv-d9 { animation-delay: .34s; }
+.uv-d10 { animation-delay: .38s; }
+.uv-d11 { animation-delay: .42s; }
+.uv-d12 { animation-delay: .46s; }
+/* 第 12 项之后统一挂 uv-d12，避免长列表末尾等待过久 */
+
+/* ========== 8. 轨道 loader ========== */
+/* 三色星点绕轨，贴合"星能/星轨"语义 */
+.uv-orbit {
+  position: relative;
+  width: 80rpx;
+  height: 80rpx;
+}
+.uv-orbit-dot {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 15rpx;
+  height: 15rpx;
+  margin: -7.5rpx 0 0 -7.5rpx;
+  border-radius: 50%;
+  border: 2rpx solid var(--ink);
+  animation: uv-orbit 1.1s linear infinite;
+}
+.uv-orbit-dot.d1 { background: var(--orange); }
+.uv-orbit-dot.d2 { background: var(--cyan);   animation-delay: -.37s; }
+.uv-orbit-dot.d3 { background: var(--yellow); animation-delay: -.74s; }
+@keyframes uv-orbit {
+  0%   { transform: rotate(0deg)    translateX(30rpx) scale(1); }
+  50%  { transform: rotate(180deg)  translateX(30rpx) scale(.72); }
+  100% { transform: rotate(360deg)  translateX(30rpx) scale(1); }
+}
+/* 小尺寸变体，用于按钮内联 loading */
+.uv-orbit.uv-orbit-sm { width: 40rpx; height: 40rpx; }
+.uv-orbit.uv-orbit-sm .uv-orbit-dot {
+  width: 9rpx; height: 9rpx; margin: -4.5rpx 0 0 -4.5rpx; border-width: 1px;
+}
+.uv-orbit.uv-orbit-sm .uv-orbit-dot {
+  animation-name: uv-orbit-sm;
+}
+@keyframes uv-orbit-sm {
+  0%   { transform: rotate(0deg)   translateX(15rpx) scale(1); }
+  50%  { transform: rotate(180deg) translateX(15rpx) scale(.7); }
+  100% { transform: rotate(360deg) translateX(15rpx) scale(1); }
+}
+
+/* ========== 9. 不定量进度条 ========== */
+.uv-bar {
+  position: relative;
+  height: 12rpx;
+  overflow: hidden;
+  background: var(--disabled);
+  border: 2rpx solid var(--ink);
+  border-radius: 999rpx;
+}
+.uv-bar::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 40%;
+  background: var(--orange);
+  border-radius: 999rpx;
+  animation: uv-bar 1.2s cubic-bezier(.22,1,.36,1) infinite;
+}
+@keyframes uv-bar {
+  0%   { transform: translateX(-110%); }
+  100% { transform: translateX(260%); }
+}
+
+/* ========== 10. 盖章反馈 ========== */
+/* 用于结果页判对/判错，比单纯换色更有"落槌"感 */
+.uv-stamp {
+  animation: uv-stamp .4s cubic-bezier(.22,1.4,.5,1) both;
+}
+@keyframes uv-stamp {
+  0%   { transform: scale(1.7) rotate(-14deg); opacity: 0; }
+  58%  { transform: scale(.93) rotate(-4deg);  opacity: 1; }
+  100% { transform: scale(1)   rotate(0deg);   opacity: 1; }
+}
+/* 抖动否定，替换 .anim-shake，幅度更明确 */
+.uv-deny {
+  animation: uv-deny .4s cubic-bezier(.22,1,.36,1);
+}
+@keyframes uv-deny {
+  0%, 100% { transform: translateX(0); }
+  20%      { transform: translateX(-10rpx); }
+  45%      { transform: translateX(8rpx); }
+  70%      { transform: translateX(-5rpx); }
+}
+
+/* ========== 11. 星芒呼吸 ========== */
+/* 替换 .anim-twinkle：叠加 scale 后比纯 opacity 更有生命感 */
+.uv-spark {
+  display: inline-block;
+  animation: uv-spark 1.8s ease-in-out infinite;
+}
+@keyframes uv-spark {
+  0%, 100% { transform: scale(.86); opacity: .55; }
+  50%      { transform: scale(1.12); opacity: 1; }
+}
+
+/* ========== 12. 数字滚动 ========== */
+/* 由 utils/count-up.js 驱动：等宽数字避免位宽跳动 */
+.uv-count {
+  display: inline-block;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ========== 13. 进度环（星轨盘） ========== */
+/* 上一版是 16 根小棍，太细碎、像梳子。这一版：
+     · 段数提到 20，每段做粗做圆（14 × 30rpx），像一圈能量条
+     · 已亮段：黄→橙→深橙三段渐变 + 硬阴影，未亮段是内凹的纸槽
+     · 外圈一条极淡的虚线轨道，把 20 段串成"星轨"而不是散点
+     · 中心圆盘：奶油内环 + 外凸硬阴影 + 大字号百分比
+      —— 第一版段太粗太长（14×30rpx），中心盘又大，挤成了"齿轮"。
+      这一版把段收成 10×22rpx、半径外推、中心盘缩到 108rpx，环才透气。
+   依然不用 conic-gradient（部分安卓 X5 会整环变灰），纯 border 拼，
+   零兼容风险。
+   用法：
+     <view class="uv-ring">
+       <view wx:for="{{ticks}}" wx:key="*this"
+         class="uv-ring-tick {{index < lit ? 'is-on' : ''}} {{index === lit - 1 ? 'is-tip' : ''}}"
+         style="transform: rotate({{item}}deg) translateY(-84rpx)"></view>
+       <view class="uv-ring-core"><text class="uv-ring-num">68%</text></view>
+     </view>
+   —— 刻度靠 transform 定位，所以"亮起"只能改颜色/阴影，绝不能动 transform。 */
+.uv-ring {
+  position: relative;
+  width: 200rpx;
+  height: 200rpx;
+  flex: none;
+}
+/* 星轨：一条很淡的虚线圆环，圈在刻度内侧，把 20 段串成一条轨道 */
+.uv-ring::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 128rpx;
+  height: 128rpx;
+  margin: -64rpx 0 0 -64rpx;
+  border: 2rpx dashed rgba(23, 25, 31, .20);
+  border-radius: 50%;
+}
+.uv-ring-tick {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 10rpx;
+  height: 22rpx;
+  margin: -11rpx 0 0 -5rpx;
+  border: 2rpx solid rgba(23, 25, 31, .24);
+  border-radius: 5rpx;
+  background: rgba(23, 25, 31, .045);
+  box-shadow: none;
+  transition: background .26s cubic-bezier(.22,1,.36,1),
+              border-color .26s cubic-bezier(.22,1,.36,1),
+              box-shadow .26s cubic-bezier(.22,1,.36,1),
+              transform .26s cubic-bezier(.22,1.4,.5,1);
+}
+.uv-ring-tick.is-on {
+  background: linear-gradient(180deg, #FFD84D 0%, #FF8A2A 55%, #E23A18 100%);
+  border-color: var(--ink);
+  box-shadow: 2rpx 3rpx 0 rgba(23, 25, 31, .50),
+              inset 0 2rpx 0 rgba(255, 255, 255, .60);
+  transform: scale(1.05);
+}
+.uv-ring-tick.is-tip::after {
+  content: '';
+  position: absolute;
+  top: -3rpx;
+  right: -3rpx;
+  bottom: -3rpx;
+  left: -3rpx;
+  border-radius: 9rpx;
+  animation: uv-tick-pop .6s cubic-bezier(.22,1,.36,1) forwards;
+}
+@keyframes uv-tick-pop {
+  0%   { box-shadow: 0 0 0 0 rgba(255, 138, 42, .90); }
+  100% { box-shadow: 0 0 0 18rpx rgba(255, 138, 42, 0); }
+}
+.uv-ring-core {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 108rpx;
+  height: 108rpx;
+  margin: -54rpx 0 0 -54rpx;
+  display: flex; flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  background: linear-gradient(180deg, #FFFFFF 0%, #FFF6E2 100%);
+  border: 4rpx solid var(--ink);
+  border-radius: 50%;
+  box-shadow: inset 0 0 0 6rpx var(--cream),
+              inset 0 6rpx 8rpx -4rpx rgba(23, 25, 31, .22),
+              5rpx 6rpx 0 rgba(23, 25, 31, .80);
+}
+.uv-ring-num {
+  font-family: "ZCOOL KuaiLe Local", sans-serif;
+  font-size: 32rpx;
+  line-height: 1;
+  letter-spacing: -1rpx;
+}
+
+
+/* ========== 13b. 弧环（另一种进度环，好看优先） ========== */
+/* 上一版 13 是"刻度盘"，这一版是"一整条粗弧"——两者是同一个需求的两种答案，
+   在试验舱里并排摆，你挑一个。
+   做法：conic-gradient 画环，中间用一块圆盘挖空。
+     · 环宽 26rpx（196 - 144）/2，够粗，圆头感强，像 Apple Watch 的活动环
+     · 环上有黄→橙→深橙三段渐变，已过处与未过处之间是硬边（不虚化）
+     · 中盘：奶油渐变 + 墨描边 + 硬阴影，整环也带硬阴影，和波普贴纸同源
+   兼容：conic-gradient 在旧内核上会整条失效。为此先给 background-color
+   铺一层浅灰，失效时退化成"一整圈浅灰环"，不会凭空消失。
+   用法（渐变整条写在行内，不走 CSS 变量——小程序行内样式里传自定义属性不可靠）：
+     <view class="uv-ring-arc"
+       style="background-image:conic-gradient(from -90deg,#FFC24D 0deg,#FF8A2A {{deg * 0.5}}deg,#E23A18 {{deg}}deg,#E4DCC6 {{deg}}deg)">
+       <view class="uv-ring-hole"><text class="uv-ring-num">68%</text></view>
+     </view>
+   —— deg = 百分比 × 3.6（JS 里算好，别在 WXML 里做除法）。
+   环底色 #E4DCC6 写在 WXSS 里：conic-gradient 一旦失效，靠它兜底成"一整圈浅灰环"。 */
+.uv-ring-arc {
+  position: relative;
+  box-sizing: border-box;
+  width: 196rpx;
+  height: 196rpx;
+  flex: none;
+  border-radius: 50%;
+  background-color: #E4DCC6;   /* 兜底：渐变失效时显示的整圈灰轨 */
+  box-shadow: 0 0 0 3rpx var(--ink),
+              7rpx 8rpx 0 rgba(23, 25, 31, .85);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.uv-ring-hole {
+  width: 144rpx;
+  height: 144rpx;
+  display: flex; flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(180deg, #FFFFFF 0%, #FFF6E2 100%);
+  border-radius: 50%;
+  box-shadow: inset 0 0 0 5rpx var(--cream),
+              inset 0 6rpx 8rpx -4rpx rgba(23, 25, 31, .18);
+}
+
+/* ========== 14. 底部弹层增强 ========== */
+/* 在原 .sheet 基础上叠加：遮罩淡入 + 手柄拖拽跟手 */
+.uv-overlay-in {
+  animation: uv-fade-in .22s ease-out both;
+}
+@keyframes uv-fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+.uv-sheet-grip {
+  width: 72rpx;
+  height: 8rpx;
+  margin: 0 auto 18rpx;
+  border-radius: 999rpx;
+  background: rgba(23, 25, 31, .22);
+  transition: background .16s cubic-bezier(.22,1,.36,1);
+}
+.uv-sheet-grip.is-dragging { background: rgba(255, 138, 42, .75); }
+.uv-sheet-drag {
+  transition: transform .26s cubic-bezier(.22,1,.36,1);
+  will-change: transform;
+}
+.uv-sheet-drag.is-tracking { transition: none; }
+
+/* ========== 15. 动效闸门 ========== */
+/* 挂在页面根节点：class="page ... {{reduceMotion ? 'reduce-motion' : ''}}"
+   自定义组件（custom-tab-bar / xingcheng-q）不在页面节点树内，
+   app.wxss 的 class 无法穿透（默认 styleIsolation: isolated），需各自处理。
+
+   刻意保留的"结果反馈类"动画：uv-stamp / uv-deny
+   ——它们表达的是判定结果而非装饰，关掉会丢失信息。 */
+.reduce-motion .anim-in,
+.reduce-motion .anim-pop,
+.reduce-motion .anim-shake,
+.reduce-motion .anim-twinkle,
+.reduce-motion .card-in,
+.reduce-motion .card-in-d1,
+.reduce-motion .card-in-d2,
+.reduce-motion .card-in-d3,
+.reduce-motion .page-fade,
+.reduce-motion .btn-pulse,        /* today：开始跃迁按钮的无限脉冲 */
+.reduce-motion .chips-shake,      /* practice：选满 3 条时的抖动 */
+.reduce-motion .star-gate-ring,   /* onboarding：星门虚线环 14s 无限旋转 */
+.reduce-motion .beam-seg,         /* quiz：跃迁能量束 1.4s 无限呼吸 */
+.reduce-motion .sheet,            /* 弹层 sheet-up 入场 */
+.reduce-motion .uv-overlay-in,
+.reduce-motion .uv-ripple::after,
+.reduce-motion .uv-press,
+.reduce-motion .uv-pick-card,
+.reduce-motion .uv-pick-mark,
+.reduce-motion .uv-check-lite,
+.reduce-motion .uv-check-lite::before,
+.reduce-motion .uv-check-lite::after,
+.reduce-motion .uv-check-lite-mark,
+.reduce-motion .uv-opt-chip,
+.reduce-motion .uv-tag-pick,
+.reduce-motion .uv-tag-pick-mark,
+.reduce-motion .uv-sk::after,
+.reduce-motion .uv-flow::after,
+.reduce-motion .uv-orbit-dot,
+.reduce-motion .uv-bar::after,
+.reduce-motion .uv-spark,
+.reduce-motion .uv-stagger-item,
+.reduce-motion .uv-toggle,
+.reduce-motion .uv-toggle::before,
+.reduce-motion .uv-toggle::after,
+.reduce-motion .uv-toggle-knob,
+.reduce-motion .uv-seg,
+.reduce-motion .uv-seg::before,
+.reduce-motion .uv-ring::before,
+.reduce-motion .uv-ring-tick,
+.reduce-motion .uv-ring-tick::after,
+.reduce-motion .uv-ring-arc,
+.reduce-motion .uv-taprow,
+.reduce-motion .uv-sheet-drag,
+.reduce-motion .uv-sheet-grip {
+  animation: none !important;
+  transition: none !important;
+}
+
+/* —— 静止后必须补回「可见终态」——
+   这些元素的终态原本由动画最后一帧给出，关掉动画会直接消失 */
+.reduce-motion .uv-sk::after {
+  opacity: .35;
+  transform: none;
+}
+.reduce-motion .uv-stagger-item {
+  opacity: 1;
+  transform: none;
+}
+.reduce-motion .uv-pick-card.is-on .uv-pick-mark,
+.reduce-motion .uv-tag-pick.is-on .uv-tag-pick-mark {
+  opacity: 1;
+  transform: scale(1) rotate(10deg);
+}
+/* 勾：终态尺寸原本由最后一帧给出，关掉动画会缩成 0，必须显式补回 */
+.reduce-motion .uv-check-lite.is-on .uv-check-lite-mark {
+  opacity: 1;
+  width: 21rpx;
+  height: 17rpx;
+}
+/* 分段进度：填充的 scaleX 展开同理 */
+.reduce-motion .uv-seg.is-on::before {
+  opacity: 1;
+  transform: scaleX(1);
+}
+/* 开关：行程 64rpx（与主样式一致，别再留旧值） */
+.reduce-motion .uv-toggle.is-on .uv-toggle-knob {
+  transform: translateX(64rpx);
+}
+.reduce-motion .uv-toggle.is-on .uv-toggle-knob::after { opacity: 1; transform: none; }
+/* 刻度环：外圈虚线轨道保持可见 */
+.reduce-motion .uv-ring::before { border-style: dashed; }
+.reduce-motion .beam-seg.seg-1,
+.reduce-motion .beam-seg.seg-2 { opacity: .9; }
+
+/* —— 减少动态 ≠ 零反馈 ——
+   按下态改用不产生位移的透明度反馈，否则按钮会变得毫无响应。
+   注意：下面几条作用在 hover-class 对应的类上，所以一律不加 !important
+   —— hover-class 的样式一旦含 !important 会被小程序整条忽略。 */
+.reduce-motion .uv-press-hover {
+  transform: none;
+  opacity: .68;
+}
+.reduce-motion .uv-toggle-hover {
+  transform: none;
+  opacity: .72;
+}
+.reduce-motion .uv-toggle-hover .uv-toggle-knob { transform: none; }
+.reduce-motion .uv-toggle-hover.is-on .uv-toggle-knob { transform: translateX(64rpx); }
+.reduce-motion .uv-ripple-hover {
+  transform: none;
+  opacity: .68;
+}
+.reduce-motion .uv-ripple-hover::after {
+  animation: none;
+  opacity: .3;
+}
+
+/* ========== 16. 星轨单选 ========== */
+/* quiz 作答选项：全站曝光最高的控件，配得上"四颗行星"。
+   技法来自 Uiverse Radio 类的虚线圆环方向：
+     · 未选：行星是纸白圆 + 墨色虚线环（一颗没点亮的星）
+     · 选中：行星点亮成橙黄渐变、字母反白，
+       外圈虚线轨道亮起橙色并缓缓转动（整屏最多一个 is-on，符合动效红线）
+     · 整行可点，按下整行变淡（uv-taprow）
+   用法：
+     <view class="uv-radio-orbit {{sel === id ? 'is-on' : ''}}"
+           hover-class="uv-taprow-hover" hover-start-time="0"
+           data-id="{{id}}" bindtap="pick">
+       <view class="uv-radio-planet"><text class="uv-radio-key">A</text></view>
+       <view class="uv-radio-body">
+         <view class="uv-radio-txt">选项文字</view>
+         <view class="uv-radio-sub">补充说明（可省）</view>
+       </view>
+     </view> */
+.uv-radio-orbit {
+  position: relative;
+  display: flex; flex-direction: row;
+  align-items: center;
+  gap: 22rpx;
+  padding: 22rpx 26rpx;
+  background: var(--card);
+  border: 3rpx solid var(--ink);
+  border-radius: 20rpx;
+  box-shadow: 4rpx 5rpx 0 rgba(23, 25, 31, .14);
+  transition: background .26s cubic-bezier(.22,1,.36,1),
+              box-shadow .26s cubic-bezier(.22,1,.36,1),
+              transform .26s cubic-bezier(.22,1,.36,1);
+}
+.uv-radio-orbit.is-on {
+  background: var(--cream-hi);
+  box-shadow: 2rpx 3rpx 0 rgba(23, 25, 31, .55);
+  transform: translate(2rpx, 2rpx);
+}
+.uv-radio-planet {
+  position: relative;
+  width: 62rpx;
+  height: 62rpx;
+  flex: none;
+  display: flex; flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  background: #FFFDF4;
+  border: 3rpx dashed rgba(23, 25, 31, .30);
+  border-radius: 50%;
+  transition: background .26s cubic-bezier(.22,1,.36,1),
+              border-color .26s cubic-bezier(.22,1,.36,1);
+}
+/* 外圈轨道：未选时几乎看不见，选中后亮起并缓缓转动 */
+.uv-radio-planet::before {
+  content: '';
+  position: absolute;
+  top: -12rpx;
+  right: -12rpx;
+  bottom: -12rpx;
+  left: -12rpx;
+  border: 2rpx dashed rgba(23, 25, 31, .12);
+  border-radius: 50%;
+}
+.uv-radio-orbit.is-on .uv-radio-planet {
+  background: linear-gradient(180deg, #FFC24D 0%, #FF8A2A 60%, #E23A18 100%);
+  border-color: var(--ink);
+  box-shadow: inset 0 3rpx 0 rgba(255, 255, 255, .50),
+              2rpx 3rpx 0 rgba(23, 25, 31, .55);
+}
+.uv-radio-orbit.is-on .uv-radio-planet::before {
+  border-color: rgba(255, 138, 42, .75);
+  animation: uv-orbit-spin 7s linear infinite;
+}
+@keyframes uv-orbit-spin { to { transform: rotate(360deg); } }
+.uv-radio-key {
+  font-size: 26rpx;
+  font-weight: 900;
+  color: var(--ink);
+  transition: color .26s cubic-bezier(.22,1,.36,1);
+}
+.uv-radio-orbit.is-on .uv-radio-key { color: #FFFDF4; }
+.uv-radio-body { flex: 1; min-width: 0; }
+.uv-radio-txt { font-size: 27rpx; font-weight: 700; color: var(--ink); }
+.uv-radio-sub { margin-top: 4rpx; font-size: 22rpx; color: var(--muted); }
+
+/* ========== 17. 星能通知 ========== */
+/* 方向来自 Uiverse Notifications：满屏的 "Level Up" 游戏化横幅。
+   全站答对题 / 星能到账 / 升级没有任何全局反馈，这一条补上。
+   顶部落下 → 星星弹入 → 底部倒计时条走完，由 JS 定时销毁（wx:if）。
+   用法：
+     <view wx:if="{{toastShow}}" class="uv-toast">
+       <text class="uv-toast-star">★</text>
+       <text class="uv-toast-txt">星能 +10</text>
+       <view class="uv-toast-bar"></view>
+     </view>
+   注意 top 避开自定义导航（页面已用 topPad 注入，这里取 safe-area + 96rpx）。 */
+.uv-toast {
+  position: fixed;
+  top: calc(env(safe-area-inset-top) + 96rpx);
+  left: 50%;
+  z-index: 400;
+  display: flex; flex-direction: row;
+  align-items: center;
+  gap: 14rpx;
+  padding: 20rpx 30rpx 24rpx;
+  background: linear-gradient(180deg, #FFC24D 0%, #FF8A2A 70%, #F04424 100%);
+  border: 3rpx solid var(--ink);
+  border-radius: 20rpx;
+  box-shadow: 5rpx 6rpx 0 rgba(23, 25, 31, .85);
+  animation: uv-toast-drop .42s cubic-bezier(.22,1.4,.5,1) both;
+}
+@keyframes uv-toast-drop {
+  from { transform: translate(-50%, -130rpx); opacity: 0; }
+  to   { transform: translate(-50%, 0);       opacity: 1; }
+}
+.uv-toast-star {
+  color: #FFFDF4;
+  font-size: 34rpx;
+  line-height: 1;
+  text-shadow: 2rpx 2rpx 0 rgba(23, 25, 31, .50);
+  animation: uv-toast-pop .4s cubic-bezier(.22,1.4,.5,1) .14s both;
+}
+@keyframes uv-toast-pop {
+  from { transform: scale(0) rotate(-90deg); }
+  to   { transform: scale(1) rotate(0deg); }
+}
+.uv-toast-txt { font-size: 28rpx; font-weight: 900; color: #FFFDF4; }
+/* 信息变体：奶油中性贴纸（"反馈已提交"之外的普通提示） */
+.uv-toast-info {
+  background: linear-gradient(180deg, #FFFDF4 0%, #FFF1C6 100%);
+  border-color: var(--ink);
+  box-shadow: 5rpx 6rpx 0 rgba(23, 25, 31, .55);
+}
+.uv-toast-info .uv-toast-star { color: var(--orange); text-shadow: none; }
+.uv-toast-info .uv-toast-txt { color: var(--ink); }
+.uv-toast-info .uv-toast-bar { background: rgba(23, 25, 31, .28); }
+/* 失败变体：红色贴纸（校验不过、上传失败） */
+.uv-toast-err {
+  background: linear-gradient(180deg, #FF7A85 0%, #FF5A64 65%, #E23A4E 100%);
+}
+.uv-toast-err .uv-toast-star { color: #FFFDF4; }
+.uv-toast-err .uv-toast-txt { color: #FFFDF4; }
+.uv-toast-err .uv-toast-bar { background: rgba(255, 253, 244, .70); }
+/* 倒计时条：走完即被 JS 收走；基础态 scaleX(1) 保证闸门开启时可见 */
+.uv-toast-bar {
+  position: absolute;
+  left: 6rpx;
+  right: 6rpx;
+  bottom: 4rpx;
+  height: 5rpx;
+  border-radius: 99rpx;
+  background: rgba(255, 253, 244, .65);
+  transform: scaleX(1);
+  transform-origin: left center;
+  animation: uv-toast-timer 1.9s linear forwards;
+}
+@keyframes uv-toast-timer { to { transform: scaleX(0); } }
+
+/* ========== 18. 星语气泡 ========== */
+/* quiz 解析页"为什么"的气泡。技法来自 Uiverse Tooltips 的滑出 + 箭头，
+   套贴纸皮：奶油底、墨线描边、硬阴影、45° 小尾巴。
+   重要：常驻节点用 is-open 驱动（transition 才有滑出过渡），不要用 wx:if。
+   用法：
+     <view class="uv-bubble-host">
+       <view bindtap="toggle">为什么？</view>
+       <view class="uv-bubble {{open ? 'is-open' : ''}}">气泡内容</view>
+     </view> */
+.uv-bubble-host { position: relative; display: inline-flex; }
+.uv-bubble {
+  position: absolute;
+  bottom: calc(100% + 18rpx);
+  left: -20rpx;
+  width: 460rpx;
+  z-index: 20;
+  padding: 20rpx 24rpx;
+  background: var(--cream);
+  border: 3rpx solid var(--ink);
+  border-radius: 16rpx;
+  box-shadow: 4rpx 5rpx 0 rgba(23, 25, 31, .80);
+  font-size: 24rpx;
+  line-height: 1.6;
+  color: var(--ink);
+  opacity: 0;
+  transform: translateY(10rpx) scale(.96);
+  transform-origin: bottom left;
+  pointer-events: none;
+  transition: opacity .22s cubic-bezier(.22,1,.36,1),
+              transform .26s cubic-bezier(.22,1.4,.5,1);
+}
+/* 45° 小尾巴：右下两边描边旋转，和气泡的墨线对齐 */
+.uv-bubble::before {
+  content: '';
+  position: absolute;
+  bottom: -10rpx;
+  left: 44rpx;
+  width: 16rpx;
+  height: 16rpx;
+  background: var(--cream);
+  border-right: 3rpx solid var(--ink);
+  border-bottom: 3rpx solid var(--ink);
+  transform: rotate(45deg);
+}
+.uv-bubble.is-open { opacity: 1; transform: translateY(0) scale(1); }
+
+/* ========== 19. 星轨输入框 ========== */
+/* 技法来自 Uiverse Inputs 两个方向：硬阴影实体感 + "输错抖一下"。
+   小程序拿不到 :focus（视图层死规则），用 input 自带的
+   bindfocus / bindblur 挂 is-focus；错误抖动复用 uv-deny。
+   用法：
+     <input class="input-box uv-input {{focus ? 'is-focus' : ''}} {{err ? 'is-err uv-deny' : ''}}"
+            bindfocus="..." bindblur="..." /> */
+.uv-input {
+  transition: border-color .22s cubic-bezier(.22,1,.36,1),
+              box-shadow .22s cubic-bezier(.22,1,.36,1);
+}
+.uv-input.is-focus {
+  border-color: var(--orange);
+  box-shadow: 0 0 0 4rpx rgba(255, 138, 42, .18),
+              3rpx 4rpx 0 rgba(23, 25, 31, .16);
+}
+.uv-input.is-err {
+  border-color: var(--red);
+  box-shadow: 0 0 0 4rpx rgba(255, 90, 100, .15);
+}
+
+/* ========== 15b. 本轮新增组件接入动效闸门 ========== */
+/* 星轨单选 / 星能通知 / 星语气泡 / 星轨输入 / 迷航空态 */
+.reduce-motion .uv-radio-orbit,
+.reduce-motion .uv-radio-planet,
+.reduce-motion .uv-radio-planet::before,
+.reduce-motion .uv-radio-key,
+.reduce-motion .uv-toast,
+.reduce-motion .uv-toast-star,
+.reduce-motion .uv-toast-bar,
+.reduce-motion .uv-bubble,
+.reduce-motion .uv-bubble::before,
+.reduce-motion .uv-input,
+.reduce-motion .uv-lonely-star {
+  animation: none !important;
+  transition: none !important;
+}
+/* 空态孤星静止时保持实色，不半透明 */
+.reduce-motion .uv-lonely-star { opacity: 1; transform: none; }
+/* 通知倒计时条静止时保持满格，销毁时机由 JS 定时器兜底 */
+.reduce-motion .uv-toast-bar { transform: scaleX(1); }
+
+/* ========== 20. 迷航空态 ========== */
+/* 错题刷完 / 题目加载失败时的孤星场景，替换纯文字占位。
+   一颗孤星在虚线轨道里缓缓呼吸（全页唯一循环动画，2.6s）；
+   轨道上两粒"石子星"是静态点缀，不参与循环——守循环动画红线。
+   失败变体加 .uv-lonely-dim：孤星变灰、光晕收掉，情绪从"圆满"转"信号丢失"。
+   用法：
+     <view class="uv-lonely">
+       <view class="uv-lonely-sky">
+         <view class="uv-lonely-orbit"></view>
+         <text class="uv-lonely-star">✦</text>
+       </view>
+       <view class="uv-lonely-title">这条星轨全部校准完毕</view>
+       <view class="uv-lonely-sub">错题清零，孤星也可以休息了</view>
+     </view>
+   （重试按钮用页面自己的 .btn，放组件外面。） */
+.uv-lonely {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 46rpx 30rpx 30rpx;
+}
+.uv-lonely-sky {
+  position: relative;
+  width: 210rpx;
+  height: 210rpx;
+  display: flex; flex-direction: row;
+  align-items: center;
+  justify-content: center;
+}
+.uv-lonely-orbit {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  border: 2rpx dashed rgba(23, 25, 31, .28);
+  border-radius: 50%;
+}
+/* 轨道上的两粒石子星：静态点缀 */
+.uv-lonely-orbit::before {
+  content: '';
+  position: absolute;
+  top: 10%;
+  right: 18%;
+  width: 9rpx;
+  height: 9rpx;
+  border-radius: 50%;
+  background: rgba(255, 138, 42, .55);
+}
+.uv-lonely-orbit::after {
+  content: '';
+  position: absolute;
+  bottom: 14%;
+  left: 12%;
+  width: 7rpx;
+  height: 7rpx;
+  border-radius: 50%;
+  background: rgba(23, 25, 31, .22);
+}
+.uv-lonely-star {
+  font-size: 76rpx;
+  line-height: 1;
+  color: #FF8A2A;
+  text-shadow: 3rpx 4rpx 0 rgba(23, 25, 31, .18);
+  animation: uv-lonely-breathe 2.6s ease-in-out infinite;
+}
+@keyframes uv-lonely-breathe {
+  0%, 100% { transform: scale(.86); opacity: .68; }
+  50%      { transform: scale(1.08); opacity: 1; }
+}
+/* 信号丢失变体：孤星变灰 */
+.uv-lonely-dim .uv-lonely-star { color: #B9B2A0; text-shadow: none; }
+.uv-lonely-title { margin-top: 24rpx; font-size: 28rpx; font-weight: 900; color: var(--ink); }
+.uv-lonely-sub { margin-top: 8rpx; font-size: 23rpx; color: var(--muted); text-align: center; }
+
+/* 小号变体：列表尾部"没有更多了"这类轻场景 */
+.uv-lonely-sm { padding: 26rpx 20rpx 18rpx; }
+.uv-lonely-sm .uv-lonely-sky { width: 140rpx; height: 140rpx; }
+.uv-lonely-sm .uv-lonely-star { font-size: 52rpx; }
+.uv-lonely-sm .uv-lonely-title { font-size: 26rpx; margin-top: 14rpx; }

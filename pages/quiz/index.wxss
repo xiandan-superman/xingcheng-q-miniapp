@@ -1,0 +1,283 @@
+/* ============ 答题页（顶部间距由 JS 精确注入） ============ */
+
+.timer-sticker {
+  background: var(--yellow);
+  border: 3rpx solid var(--ink);
+  border-radius: 12rpx;
+  padding: 8rpx 20rpx;
+  font-size: 26rpx;
+  font-weight: 900;
+  box-shadow: 3rpx 4rpx 0 rgba(23,25,31,.85);
+  transform: rotate(-2deg);
+  font-variant-numeric: tabular-nums;
+}
+
+/* 跃迁能量束 */
+.beam {
+  position: relative;
+  display: flex; flex-direction: row;
+  gap: 10rpx;
+  margin: 18rpx 8rpx 0;
+  padding-right: 60rpx;
+}
+.beam-seg {
+  flex: 1;
+  height: 18rpx;
+  border-radius: 99rpx;
+  border: 2rpx solid var(--ink);
+  background: rgba(23,25,31,.08);
+  transition: background .3s ease;
+}
+.beam-seg.seg-1 { background: var(--orange); box-shadow: 0 0 10rpx rgba(255,138,42,.6); }
+.beam-seg.seg-2 { background: var(--cyan); box-shadow: 0 0 10rpx rgba(53,216,240,.5); }
+.beam-seg.seg-1, .beam-seg.seg-2 { animation: beam-glow 1.4s ease-in-out infinite; }
+@keyframes beam-glow {
+  0%, 100% { filter: brightness(1); }
+  50% { filter: brightness(1.12); }
+}
+.beam-q {
+  position: absolute;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 56rpx; height: 56rpx;
+  display: flex; flex-direction: row; align-items: center; justify-content: center;
+ background: transparent; }
+.beam-copy { font-size: 21rpx; color: var(--ink); margin: 10rpx 8rpx 0; padding-right: 60rpx; }
+.beam-copy text { opacity: .55; font-weight: 700; }
+.beam-stage { color: var(--orange); font-weight: 800; opacity: 1 !important; }
+
+/* 题干卡 */
+.stem-card { padding: 28rpx; }
+.stem-text { font-size: 31rpx; font-weight: 800; line-height: 1.6; }
+.stem-sub { font-size: 24rpx; color: var(--muted); line-height: 1.65; }
+
+/* 题干内嵌相图 */
+.stem-diagram { margin-top: 24rpx; padding-top: 20rpx; border-top: 2rpx dashed rgba(23,25,31,.12); }
+/* 相图卡（旧独立卡保留类名兼容） */
+.diagram-card { padding: 24rpx; }
+.diagram-title {
+  font-family: "ZCOOL KuaiLe Local", sans-serif;
+  font-size: 30rpx;
+}
+.zoom-btn {
+  background: var(--cyan);
+  border: 3rpx solid var(--ink);
+  border-radius: 99rpx;
+  padding: 8rpx 18rpx;
+  font-size: 22rpx;
+  font-weight: 800;
+  box-shadow: 2rpx 3rpx 0 rgba(23,25,31,.85);
+}
+.diagram-frame {
+  position: relative;
+  border: 3rpx solid var(--ink);
+  border-radius: 16rpx;
+  overflow: hidden;
+  background: var(--card);
+}
+.diagram-image { width: 100%; display: block; }
+.corner {
+  position: absolute;
+  color: var(--orange);
+  font-size: 22rpx;
+}
+.c1 { top: 8rpx; left: 10rpx; } .c2 { top: 8rpx; right: 10rpx; }
+.c3 { bottom: 8rpx; left: 10rpx; } .c4 { bottom: 8rpx; right: 10rpx; }
+
+/* 小问作答卡 */
+.subq { padding: 26rpx; }
+.sq-head { margin-bottom: 8rpx; }
+.sq-num {
+  width: 48rpx; height: 48rpx; flex: none;
+  border-radius: 12rpx;
+  border: 3rpx solid var(--ink);
+  display: flex; flex-direction: row; align-items: center; justify-content: center;
+  font-size: 28rpx; font-weight: 900; color: var(--card);
+}
+.num-orange { background: var(--orange); }
+.num-cyan { background: var(--cyan); color: var(--ink); }
+.num-pink { background: var(--pink); }
+.sq-title {
+  font-family: "ZCOOL KuaiLe Local", sans-serif;
+  font-size: 30rpx;
+}
+.sq-prompt { font-size: 23rpx; margin-bottom: 16rpx; color: var(--ink); }
+.sq-input-wrap {
+  position: relative;
+  background: var(--card);
+  border: 3rpx solid var(--ink);
+  border-radius: 18rpx;
+  padding: 20rpx 22rpx 20rpx 56rpx;
+  transition: border-color .2s ease, box-shadow .2s ease;
+}
+.sq-input-wrap.focus { border-color: var(--orange); box-shadow: 0 0 0 4rpx rgba(255,138,42,.18); }
+.sq-pen { position: absolute; top: 20rpx; left: 18rpx; width: 30rpx; height: 30rpx; }
+.sq-input { width: 100%; min-height: 150rpx; font-size: 27rpx; line-height: 1.6; color: var(--ink); }
+.sq-ph { color: var(--muted); font-size: 25rpx; }
+
+/* 纠错弹层 */
+.locate-card { padding: 20rpx 24rpx; }
+.locate-text { font-size: 27rpx; font-weight: 800; margin: 4rpx 0; }
+.type-label { font-size: 26rpx; font-weight: 800; margin-bottom: 14rpx; }
+.type-chip { padding: 12rpx 26rpx; font-size: 24rpx; }
+.type-chip.chip-on { background: var(--yellow); box-shadow: 2rpx 3rpx 0 rgba(23,25,31,.85); transform: translateY(-2rpx); }
+.attach {
+  border: 3rpx dashed rgba(23,25,31,.3);
+  border-radius: 16rpx;
+  padding: 22rpx;
+  justify-content: center;
+}
+.attach-plus { font-size: 34rpx; color: var(--muted); }
+
+/* 错题来源标识 */
+.wrong-source {
+  display: flex; flex-direction: row;
+  align-items: center;
+  gap: 10rpx;
+  background: var(--red-bg);
+  border: 2rpx solid rgba(255,90,100,.4);
+  border-radius: 12rpx;
+  padding: 12rpx 18rpx;
+  font-size: 23rpx;
+  color: var(--red-deep);
+  font-weight: 700;
+  margin-bottom: 16rpx;
+}
+
+/* 加载 / 错误态 */
+.quiz-state { padding: 120rpx 40rpx; }
+.quiz-msg { font-size: 27rpx; color: var(--muted); margin-top: 20rpx; text-align: center; }
+
+/* 题组进度 */
+.group-prog { margin: 8rpx 4rpx 0; }
+.gp-bar {
+  height: 18rpx;
+  border-radius: 99rpx;
+  border: 2rpx solid var(--ink);
+  background: rgba(23,25,31,.08);
+  overflow: hidden;
+}
+.gp-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--cyan), var(--orange));
+  border-radius: 99rpx;
+  transition: width .4s ease;
+}
+.gp-copy { font-size: 21rpx; margin-top: 8rpx; }
+
+/* 选择题选项 */
+.options { display: flex; flex-direction: column; gap: 18rpx; }
+.option {
+  display: flex; flex-direction: row;
+  align-items: center;
+  gap: 18rpx;
+  padding: 24rpx 22rpx;
+  background: var(--card);
+}
+.opt-key {
+  width: 56rpx; height: 56rpx; flex: none;
+  border-radius: 14rpx;
+  border: 3rpx solid var(--ink);
+  background: var(--paper);
+  display: flex; flex-direction: row; align-items: center; justify-content: center;
+  font-size: 28rpx; font-weight: 900;
+}
+.opt-text { flex: 1; font-size: 27rpx; line-height: 1.5; font-weight: 600; }
+.opt-check {
+  width: 44rpx; height: 44rpx; flex: none;
+  border-radius: 50%;
+  background: var(--green);
+  border: 3rpx solid var(--ink);
+  display: flex; flex-direction: row; align-items: center; justify-content: center;
+  font-size: 26rpx; font-weight: 900;
+}
+.option.opt-picked {
+  background: var(--cream);
+  box-shadow: 6rpx 8rpx 0 rgba(240,200,80,.4);
+}
+.option.opt-picked .opt-key { background: var(--yellow); }
+.multi-tip { font-size: 21rpx; text-align: center; margin-top: 6rpx; }
+
+/* 结算/解析（题组） */
+.result-sum { padding: 40rpx 30rpx; text-align: center; margin-top: 40rpx; }
+.rs-q { display: flex; flex-direction: row; justify-content: center; margin-bottom: 10rpx; }
+.rs-score { margin: 16rpx 0 4rpx; }
+.rs-num { font-family: "ZCOOL KuaiLe Local", sans-serif; font-size: 96rpx; color: var(--orange); line-height: 1; }
+.rs-total { font-size: 34rpx; color: var(--muted); }
+.rs-label { font-size: 24rpx; color: var(--muted); margin-bottom: 30rpx; }
+.parse-show { padding: 22rpx 24rpx; }
+.pb-copy { font-size: 21rpx; margin: 8rpx 4rpx 0; }
+.progress-bar { height: 14rpx; border-radius: 99rpx; background: rgba(23,25,31,.1); overflow: hidden; margin-top: 10rpx; }
+.pb-fill { height: 100%; background: var(--orange); border-radius: 99rpx; transition: width .4s; }
+
+
+/* 纠错弹层 SCREEN9 */
+.corr-sheet { max-height: 92vh; overflow-y: auto; }
+.corr-head { margin-bottom: 16rpx; }
+.corr-sub { text-align: center; font-size: 24rpx; color: var(--muted); margin-top: 8rpx; }
+.corr-qcard { padding: 20rpx 22rpx; background: var(--cyan-bg); box-shadow: 4rpx 6rpx 0 rgba(53,216,240,.28); }
+.corr-q-label { font-size: 22rpx; color: var(--muted); margin-bottom: 6rpx; }
+.corr-q-meta { font-size: 26rpx; font-weight: 800; margin-bottom: 6rpx; }
+.corr-q-stem { font-size: 24rpx; color: var(--ink); line-height: 1.5; }
+.corr-radios { display: flex; flex-direction: column; gap: 12rpx; }
+.corr-radio {
+  display: flex; flex-direction: row; align-items: center; gap: 16rpx;
+  padding: 18rpx 20rpx; border-radius: 16rpx;
+  border: 3rpx solid var(--ink); background: var(--card);
+  font-size: 28rpx; font-weight: 700;
+}
+.corr-radio.is-on { background: var(--yellow); box-shadow: 3rpx 4rpx 0 rgba(23,25,31,.85); }
+.corr-dot {
+  width: 28rpx; height: 28rpx; border-radius: 50%; flex: none;
+  border: 3rpx solid var(--ink); background: var(--card); position: relative;
+}
+.corr-radio.is-on .corr-dot::after {
+  content: ''; position: absolute; top: 5rpx; right: 5rpx; bottom: 5rpx; left: 5rpx; border-radius: 50%; background: var(--ink);
+}
+.corr-img-box {
+  border: 3rpx dashed var(--ink); border-radius: 16rpx;
+  padding: 28rpx 20rpx; text-align: center; opacity: .85; background: rgba(255,255,255,.6);
+}
+.corr-img-ico { width: 48rpx; height: 48rpx; }
+.corr-img-hint { font-size: 22rpx; color: var(--muted); margin-top: 8rpx; }
+.corr-preview {
+  width: 100%; max-height: 280rpx; border-radius: 12rpx; border: 2rpx solid var(--ink); background: var(--card);
+}
+.corr-foot { text-align: center; margin-top: 14rpx; font-size: 22rpx; color: var(--muted); line-height: 1.5; }
+.type-label { font-size: 26rpx; font-weight: 800; margin-bottom: 12rpx; color: var(--ink); }
+
+
+/* R8 键盘避让：内容可滚，底栏实底不透白缝 */
+.quiz-scroll {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 0 0 24rpx;
+}
+.quiz-action-bar {
+  background: var(--paper) !important;
+  box-shadow: 0 -8rpx 24rpx rgba(23,25,31,.06);
+}
+.quiz-action-bar.kb-up {
+  background: var(--paper) !important;
+  border-top: 2rpx solid rgba(23,25,31,.08);
+  padding-bottom: 18rpx;
+}
+.quiz-err-actions { justify-content: center; flex-wrap: wrap; }
+.quiz-err-actions .btn { min-width: 200rpx; }
+
+/* 星轨选项补充：多选题可多颗行星点亮，但轨道不转（整屏循环动画红线） */
+.options.is-multi .uv-radio-orbit.is-on .uv-radio-planet::before { animation: none; }
+
+/* 已确认的页面细节优化：不修改角色选择器 */
+.stem-text { line-height:1.85; font-weight:500; overflow-wrap:break-word; }
+.stem-diagram { margin-top:28rpx; }
+.uv-radio-body { min-width:0; }
+.uv-radio-txt { line-height:1.75; overflow-wrap:break-word; }
+.uv-radio-orbit { transition:background-color .18s ease,border-color .18s ease; }
+.gp-copy { font-size:24rpx; }
+.flow-hint { font-size:24rpx; line-height:1.6; color:var(--muted); margin:12rpx 0; }
+.reduce-motion .uv-radio-orbit { transition:none; }
+.stem-card { position:relative; }
+.stem-role { float:right; width:232rpx; height:232rpx; margin:-18rpx -12rpx 12rpx 18rpx; }
+.correction-success-card { text-align:center; display:flex; flex-direction:column; align-items:center; }

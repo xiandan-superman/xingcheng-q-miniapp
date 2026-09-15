@@ -1,0 +1,126 @@
+/* ============ 结果页（顶部间距由 JS 精确注入） ============ */
+
+.result-hero { display: flex; flex-direction: column; align-items: center; padding: 10rpx 0 24rpx; }
+.hero-q { margin-bottom: 14rpx; width: 184rpx; height: 184rpx; display: flex; flex-direction: row; align-items: center; justify-content: center; background: transparent; }
+.verdict {
+  font-size: 40rpx;
+  padding: 14rpx 44rpx;
+  border-radius: 999rpx;
+  margin-bottom: 12rpx;
+}
+.verdict-ok { background: var(--green); color: var(--ink); }
+.verdict-err { background: var(--red); color: var(--card); }
+.verdict-pill { font-size: 32rpx; padding: 12rpx 36rpx; margin-bottom: 12rpx; }
+.verdict-text { font-size: 25rpx; }
+
+/* 小问结果卡 */
+.part-result { padding: 26rpx; }
+.sq-num {
+  width: 48rpx; height: 48rpx; flex: none;
+  border-radius: 12rpx;
+  border: 3rpx solid var(--ink);
+  display: flex; flex-direction: row; align-items: center; justify-content: center;
+  font-size: 28rpx; font-weight: 900; color: var(--card);
+}
+.num-orange { background: var(--orange); }
+.num-cyan { background: var(--cyan); color: var(--ink); }
+.num-pink { background: var(--pink); }
+.pr-title {
+  font-family: "ZCOOL KuaiLe Local", sans-serif;
+  font-size: 30rpx;
+}
+.assess .btn { flex: 1; }
+
+.ab-label { font-size: 23rpx; font-weight: 800; color: var(--muted); margin-bottom: 8rpx; }
+.ab-content {
+  font-size: 26rpx;
+  line-height: 1.65;
+  color: var(--ink);
+  border-radius: 14rpx;
+  padding: 16rpx 20rpx;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+.ab-mine { background: var(--card); border-left: 6rpx solid var(--disabled); }
+.ab-standard { background: var(--cream); border-left: 6rpx solid var(--orange); font-weight: 600; }
+.parse {
+  background: var(--cyan-bg);
+  border: 2rpx dashed rgba(53,216,240,.6);
+  border-radius: 14rpx;
+  padding: 16rpx 20rpx;
+}
+.parse .ab-content { background: transparent; padding: 4rpx 0 0; }
+
+/* 星能反馈 */
+.ef-title {
+  font-family: "ZCOOL KuaiLe Local", sans-serif;
+  font-size: 32rpx;
+  color: var(--orange-ink);
+}
+
+
+/* 专项练完汇总 */
+.practice-summary { padding: 28rpx; }
+.ps-title { font-family: "ZCOOL KuaiLe Local", sans-serif; font-size: 32rpx; font-weight: 800; }
+.ps-list { border-top: 2rpx dashed rgba(23,25,31,.12); padding-top: 12rpx; }
+.ps-row { padding: 12rpx 0; gap: 16rpx; }
+.ps-stem { flex: 1; font-size: 24rpx; font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+.type-label { font-size: 24rpx; font-weight: 800; margin-bottom: 12rpx; color: var(--ink); }
+.type-chip { padding: 12rpx 22rpx; }
+.type-chip.chip-on { background: var(--yellow); box-shadow: 2rpx 3rpx 0 rgba(23,25,31,.85); transform: translateY(-2rpx); }
+.corr-preview {
+  margin-top: 16rpx; width: 100%; max-height: 280rpx;
+  border: 3rpx solid var(--ink); border-radius: 16rpx; background: var(--card);
+}
+
+
+/* 错态警示 */
+.notice-err {
+  border: 3rpx dashed var(--red);
+  background: var(--err-bg, rgba(255,90,100,.12));
+  color: var(--red-deep);
+  font-weight: 700;
+}
+
+/* 纠错弹层 SCREEN9（与 quiz 对齐） */
+.corr-sheet { max-height: 92vh; overflow-y: auto; }
+.corr-head { margin-bottom: 16rpx; }
+.corr-sub { text-align: center; font-size: 24rpx; color: var(--muted); margin-top: 8rpx; }
+.corr-qcard { padding: 20rpx 22rpx; background: var(--cyan-bg); box-shadow: 4rpx 6rpx 0 rgba(53,216,240,.28); }
+.corr-q-label { font-size: 22rpx; color: var(--muted); margin-bottom: 6rpx; }
+.corr-q-meta { font-size: 26rpx; font-weight: 800; margin-bottom: 6rpx; }
+.corr-q-stem { font-size: 24rpx; color: var(--ink); line-height: 1.5; }
+.corr-radios { display: flex; flex-direction: column; gap: 12rpx; }
+.corr-radio {
+  display: flex; flex-direction: row; align-items: center; gap: 16rpx;
+  padding: 18rpx 20rpx; border-radius: 16rpx;
+  border: 3rpx solid var(--ink); background: var(--card);
+  font-size: 28rpx; font-weight: 700;
+}
+.corr-radio.is-on { background: var(--yellow); box-shadow: 3rpx 4rpx 0 rgba(23,25,31,.85); }
+.corr-dot {
+  width: 28rpx; height: 28rpx; border-radius: 50%; flex: none;
+  border: 3rpx solid var(--ink); background: var(--card); position: relative;
+}
+.corr-radio.is-on .corr-dot::after {
+  content: ''; position: absolute; top: 5rpx; right: 5rpx; bottom: 5rpx; left: 5rpx; border-radius: 50%; background: var(--ink);
+}
+.corr-img-box {
+  border: 3rpx dashed var(--ink); border-radius: 16rpx;
+  padding: 28rpx 20rpx; text-align: center; opacity: .85; background: rgba(255,255,255,.6);
+}
+.corr-img-ico { width: 48rpx; height: 48rpx; }
+.corr-img-hint { font-size: 22rpx; color: var(--muted); margin-top: 8rpx; }
+.corr-foot { text-align: center; margin-top: 14rpx; font-size: 22rpx; color: var(--muted); line-height: 1.5; }
+
+.review-diagram { display: block; width: 100%; }
+
+/* 已确认的页面细节优化：不修改角色选择器 */
+.ab-content { line-height:1.8; overflow-wrap:break-word; }
+.pr-title { line-height:1.6; }
+.ps-row { padding-top:20rpx; padding-bottom:20rpx; }
+.recap-check { display:inline-flex; align-items:center; justify-content:center; width:56rpx; height:56rpx; border-radius:50%; background:var(--green); color:var(--ink); font-weight:800; margin-bottom:16rpx; animation:recap-arrive .24s ease-out both; }
+@keyframes recap-arrive { from { opacity:0; transform:scale(.85); } to { opacity:1; transform:scale(1); } }
+.reduce-motion .recap-check { animation:none; }
+.correction-success-card { text-align:center; display:flex; flex-direction:column; align-items:center; }

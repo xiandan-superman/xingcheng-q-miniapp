@@ -1,0 +1,497 @@
+<view class="page lab has-navbar safe-bottom {{reduceMotion ? 'reduce-motion' : ''}}" style="padding-top:{{topPad}}px">
+  <view class="topbar">
+    <view class="back-btn" bindtap="back"><image src="/assets/icons/ic-back.png" mode="aspectFit"/></view>
+    <view class="nav-title">动效试验舱</view>
+    <view class="nav-right"></view>
+  </view>
+
+  <!-- 星能通知（fixed，任意滚动位置都挂在顶部） -->
+  <view wx:if="{{toastShow}}" class="uv-toast">
+    <text class="uv-toast-star">★</text>
+    <text class="uv-toast-txt">星能 {{toastN}}</text>
+    <view class="uv-toast-bar"></view>
+  </view>
+
+  <view class="eyebrow">MOTION LAB</view>
+  <view class="page-title">候选动效<text class="hl">对照台</text></view>
+  <view class="page-sub">技法参考 Uiverse.io Galaxy（MIT）。每张卡都可真机试触，确认后再落到正式页面。</view>
+
+  <!-- ============ 闸门（同时是 uv-toggle 演示） ============ -->
+  <view class="sec-title">动效闸门</view>
+  <view class="card card-data">
+    <view class="row between">
+      <view class="flex1">
+        <view class="lab-name">减少动态</view>
+        <view class="lab-note">拨到左边（灰档）= 动画开；拨到右边（橙色）= 全页动画与过渡立刻静止。此开关本身就是 <text class="code">uv-toggle</text> 的演示。</view>
+      </view>
+      <view class="uv-toggle {{reduceMotion ? 'is-on' : ''}}"
+        hover-class="uv-toggle-hover" hover-start-time="0"
+        bindtap="toggleMotion">
+        <view class="uv-toggle-knob"></view>
+      </view>
+    </view>
+    <view wx:if="{{reduceMotion}}" class="notice notice-warm lab-gate-warn">
+      <text>现在全页静止不是坏了，是闸门开着把所有动画刻意关掉了。把右边开关拨回左边（灰档），动画立刻回来。</text>
+    </view>
+  </view>
+
+  <!-- ============ 1. 按压与反馈 ============ -->
+  <view class="sec-title">按压与反馈</view>
+
+  <view class="card">
+    <view class="lab-head">
+      <view class="lab-name">统一按压</view>
+      <text class="pill pill-fill-cyan">uv-press</text>
+    </view>
+    <view class="lab-demo row gap-s wrap">
+      <view class="btn btn-yellow uv-press" hover-class="uv-press-hover" hover-start-time="0" hover-stay-time="120">按我</view>
+      <view class="btn btn-cyan uv-press" hover-class="uv-press-hover" hover-start-time="0" hover-stay-time="120">小按钮</view>
+    </view>
+    <view class="row gap-s mt">
+      <view class="btn btn-small btn-orange uv-press" hover-class="uv-press-hover" hover-start-time="0" hover-stay-time="120" bindtap="replayPress">看一次按下态</view>
+      <view class="btn btn-small btn-orange uv-press {{pressDemo ? 'uv-press-hover' : ''}}">观察这个</view>
+    </view>
+    <view class="lab-tip">用法就一句：在原 class 后面补 <text class="code">hover-class="uv-press-hover" hover-start-time="0"</text>。<text class="code">:active</text> 在小程序里是死的（这正是你现在全站点下去都没反应的原因），只有 hover-class 能触发按下态。<text class="lab-hint">真机上按住不放就能看到；若模拟器不响应，点「看一次按下态」用数据驱动同一个样式，效果完全一致。</text>建议落地：全站 <text class="code">.btn</text>、<text class="code">.kp-chip</text>、<text class="code">.filter-pill</text>、<text class="code">.subject-card</text>、<text class="code">.feature-card</text>、底部导航。</view>
+  </view>
+
+  <view class="card mt">
+    <view class="lab-head">
+      <view class="lab-name">按压涟漪</view>
+      <text class="pill pill-fill-pink">uv-ripple</text>
+    </view>
+    <view class="lab-demo row gap-s wrap">
+      <view class="btn btn-orange uv-press uv-ripple is-light"
+        hover-class="uv-ripple-hover" hover-start-time="0" hover-stay-time="480">按我</view>
+      <view class="btn btn-ghost uv-press uv-ripple"
+        hover-class="uv-ripple-hover" hover-start-time="0" hover-stay-time="480">浅色底</view>
+    </view>
+    <view class="row gap-s mt">
+      <view class="btn btn-small btn-orange uv-press" hover-class="uv-press-hover" hover-start-time="0" hover-stay-time="120" bindtap="replayRipple">看一次涟漪</view>
+      <view class="btn btn-small btn-ghost uv-press uv-ripple {{rippleDemo ? 'uv-ripple-hover' : ''}}">观察这个</view>
+    </view>
+    <view class="lab-tip">技法来自 Uiverse 按钮组件的 <text class="code">::after</text> 径向扩散。这一组是"下沉 + 涟漪"叠在一起的效果，松手后涟漪还会走完。建议只用在主 CTA。</view>
+  </view>
+
+  <view class="card mt">
+    <view class="lab-head">
+      <view class="lab-name">落槌与否定</view>
+      <text class="pill pill-fill-green">uv-stamp</text>
+      <text class="pill pill-fill-red">uv-deny</text>
+    </view>
+    <view class="lab-demo row gap-s wrap">
+      <view class="stamp stamp-ok {{stampOn ? 'uv-stamp' : ''}}">★ 这对了</view>
+      <view class="stamp stamp-err {{stampOn ? 'uv-stamp' : ''}}">✗ 这错了</view>
+      <view class="pill pill-soft-red {{denyOn ? 'uv-deny' : ''}}">✗ 这错了</view>
+    </view>
+    <view class="row gap-s mt-s">
+      <view class="btn btn-small btn-cyan-o uv-press" hover-class="uv-press-hover" hover-start-time="0" hover-stay-time="120" bindtap="replayStamp">重播盖章</view>
+      <view class="btn btn-small btn-ghost uv-press" hover-class="uv-press-hover" hover-start-time="0" hover-stay-time="120" bindtap="replayDeny">重播抖动</view>
+    </view>
+    <view class="lab-note mt-s">骨架屏与流光被闸门关掉时，这两类"结果反馈"仍保留——它们承载信息，不是装饰。</view>
+    <view class="lab-tip">建议落地：<text class="code">result</text> 页小问卡片顶部、<text class="code">quiz</text> 提交失败。</view>
+  </view>
+
+  <view class="card mt">
+    <view class="lab-head">
+      <view class="lab-name">星能通知</view>
+      <text class="pill pill-fill-orange">uv-toast</text>
+    </view>
+    <view class="lab-scene">用在 quiz 答对 · report 星能到账 · me 升级</view>
+    <view class="lab-demo row gap-s wrap">
+      <view class="btn btn-small btn-orange uv-press" hover-class="uv-press-hover" hover-start-time="0" hover-stay-time="120" data-n="+10" bindtap="demoToast">星能 +10</view>
+      <view class="btn btn-small btn-cyan uv-press" hover-class="uv-press-hover" hover-start-time="0" hover-stay-time="120" data-n="+1 天" bindtap="demoToast">连续打卡</view>
+    </view>
+    <view class="lab-tip"><text class="lab-hint">参考项目里通知类几乎全是"Level Up"游戏化横幅——你的星能体系正缺这个。</text>顶部落下一条贴纸，星星转着弹入，底部倒计时条走完自动收走。答对题、攒满星能、连续打卡都用它，替代"只在页面里换个颜色"的现状。正式接入时放页面根部，wx:if + JS 定时销毁。</view>
+  </view>
+
+  <!-- ============ 问答与输入 ============ -->
+  <view class="sec-title">问答与输入</view>
+
+  <view class="card">
+    <view class="lab-head">
+      <view class="lab-name">星语气泡</view>
+      <text class="pill pill-fill-pink">uv-bubble</text>
+    </view>
+    <view class="lab-scene">用在 quiz 解析 · "为什么"按钮</view>
+    <view class="lab-demo">
+      <view class="uv-bubble-host">
+        <view class="btn btn-small btn-cyan-o uv-press" hover-class="uv-press-hover" hover-start-time="0" hover-stay-time="120" bindtap="toggleBubble">为什么？</view>
+        <view class="uv-bubble {{bubbleOpen ? 'is-open' : ''}}">因为"光速不变"是狭义相对论的两条基本假设之一，另一条是物理定律在所有惯性系中等价。假设不能被证明，只能被实验检验。</view>
+      </view>
+    </view>
+    <view class="lab-tip"><text class="lab-hint">解析里的"为什么"现在只能跳转整页，太重。</text>气泡从按钮上方滑出，奶油底 + 墨线 + 硬阴影 + 45° 小尾巴，和荧光笔记同源。注意：气泡必须常驻、用 is-open 驱动过渡，用 wx:if 就没有滑出动画了。</view>
+  </view>
+
+  <view class="card mt">
+    <view class="lab-head">
+      <view class="lab-name">星轨输入框</view>
+      <text class="pill pill-fill-green">uv-input</text>
+    </view>
+    <view class="lab-scene">用在 me 反馈表 · 错题搜索</view>
+    <view class="lab-demo">
+      <input class="input-box uv-input {{inputFocus ? 'is-focus' : ''}} {{inputErr ? 'is-err uv-deny' : ''}}"
+        placeholder="写下你对这道题的疑问…"
+        placeholder-class="lab-ph"
+        value="{{inputVal}}"
+        bindfocus="onInputFocus" bindblur="onInputBlur" bindinput="onInput" />
+      <view class="row gap-s mt">
+        <view class="btn btn-small btn-ghost uv-press" hover-class="uv-press-hover" hover-start-time="0" hover-stay-time="120" bindtap="shakeInput">输错抖一下</view>
+        <text class="lab-note">{{inputFocus ? '聚焦中：橙色聚焦圈亮起' : '点输入框试试聚焦'}}</text>
+      </view>
+    </view>
+    <view class="lab-tip"><text class="lab-hint">借了参考项目两个方向：硬阴影实体感、"输错抖一下"（和 uv-deny 同源）。</text>小程序里 :focus 是死的，聚焦态用 input 自带的 bindfocus/bindblur 挂类；抖动 + 红描边表示校验失败。</view>
+  </view>
+
+  <!-- ============ 2. 选择控件 ============ -->
+  <view class="sec-title">选择控件</view>
+
+  <view class="card">
+    <view class="lab-head">
+      <view class="lab-name">整卡多选</view>
+      <text class="pill pill-fill-orange">uv-pick-card</text>
+    </view>
+    <view class="lab-scene">用在 onboarding · 选星图领域</view>
+    <view class="lab-demo col gap">
+      <view wx:for="{{subjectPick}}" wx:key="id" data-id="{{item.id}}" bindtap="toggleSubject"
+        class="uv-pick-card uv-taprow {{item.on ? 'is-on' : ''}}"
+        hover-class="uv-taprow-hover" hover-start-time="0" hover-stay-time="80">
+        <view class="lab-option">{{item.name}}</view>
+        <view class="lab-note">{{item.detail}}</view>
+        <view class="uv-pick-mark"></view>
+      </view>
+    </view>
+    <view class="lab-tip"><text class="lab-hint">选项本身就是一张有名字、有说明的卡，就别让人去瞄右上角那个小圈。</text>点卡的任何位置都能选，选中后整卡变成荧光黄并往下压，角上弹出一枚橙色勾章。你原设计就是"整卡可点"，这里只是把反馈从小圆圈放大到了整张卡。</view>
+  </view>
+
+  <view class="card mt">
+    <view class="lab-head">
+      <view class="lab-name">轻量勾选</view>
+      <text class="pill pill-fill-cyan">uv-check-lite</text>
+    </view>
+    <view class="lab-scene">用在 onboarding · 同意协议</view>
+    <view class="lab-demo">
+      <view class="row gap-s uv-taprow" hover-class="uv-taprow-hover" hover-start-time="0" hover-stay-time="80" bindtap="toggleConsent">
+        <view class="uv-check-lite {{agreed ? 'is-on' : ''}}">
+          <view class="uv-check-lite-mark"></view>
+        </view>
+        <text class="lab-consent">我已阅读并同意《星航隐私条款》与《星航用户协议》</text>
+      </view>
+    </view>
+    <view class="lab-tip"><text class="lab-hint">协议勾选是"过门槛"，不是"做选择"，所以它得比别处都轻。</text>小一号、细描边、<text class="lab-hint">没有硬阴影、选中也不位移</text>——绝不能让它和下面那个主按钮抢注意力。你原来是白底方框 + 文字 ✓，现在是橙底 + 一笔画出的勾。</view>
+  </view>
+
+  <view class="card mt">
+    <view class="lab-head">
+      <view class="lab-name">互斥选项</view>
+      <text class="pill pill-fill-green">uv-opt-chip</text>
+    </view>
+    <view class="lab-scene">用在 quiz / result · 这题错在哪</view>
+    <view class="lab-demo">
+      <view class="uv-opt-chips">
+        <view wx:for="{{corrTypes}}" wx:key="*this" data-t="{{item}}" bindtap="pickCorr"
+          class="uv-opt-chip {{corrType === item ? 'is-on' : ''}}"
+          hover-class="uv-opt-chip-hover" hover-start-time="0" hover-stay-time="80">{{item}}</view>
+      </view>
+    </view>
+    <view class="lab-tip"><text class="lab-hint">"题干有误""答案有误"这种词很短，竖排四行、每行前面顶一个圆点是浪费。</text>横着排成标签省一半高度，而且选中态就落在你视线所在的位置，不用把眼睛挪到左边去找圆点。词长了会自动换行，不会挤。</view>
+  </view>
+
+  <view class="card mt">
+    <view class="lab-head">
+      <view class="lab-name">带配额的标签多选</view>
+      <text class="pill pill-fill-red">uv-tag-pick</text>
+    </view>
+    <view class="lab-scene">用在 practice · 选 3 条薄弱点</view>
+    <view class="lab-demo">
+      <view class="row wrap gap-s {{kpShake ? 'uv-deny' : ''}}">
+        <view wx:for="{{kpTags}}" wx:key="id" data-id="{{item.id}}" bindtap="toggleKp"
+          class="uv-tag-pick {{item.on ? 'is-on' : ''}} {{kpFull && !item.on ? 'is-blocked' : ''}}"
+          hover-class="uv-tag-pick-hover" hover-start-time="0" hover-stay-time="80">
+          <text>{{item.name}}</text>
+          <view class="uv-tag-pick-mark"></view>
+        </view>
+      </view>
+      <view class="lab-note mt-s">已选 {{kpSelected}} / 3{{kpFull ? ' · 已达上限，其余暂时点不动' : ''}}</view>
+    </view>
+    <view class="lab-tip"><text class="lab-hint">这一处的关键不是"选没选"，而是"选满了没有"。</text>你现在选满 3 个是整排抖一下，抖完人还是不知道该干什么。现在改成：选满之后剩下的标签直接变灰、点不动，一眼就知道到顶了——再点才抖一下提示你。</view>
+  </view>
+
+  <view class="card mt">
+    <view class="lab-head">
+      <view class="lab-name">星轨单选</view>
+      <text class="pill pill-fill-cyan">uv-radio-orbit</text>
+    </view>
+    <view class="lab-scene">用在 quiz · 作答选项（全站曝光最高的控件）</view>
+    <view class="lab-demo col gap">
+      <view wx:for="{{radioOpts}}" wx:key="id"
+        class="uv-radio-orbit {{radioSel === item.id ? 'is-on' : ''}}"
+        hover-class="uv-taprow-hover" hover-start-time="0" hover-stay-time="80"
+        data-id="{{item.id}}" bindtap="pickRadio">
+        <view class="uv-radio-planet"><text class="uv-radio-key">{{item.key}}</text></view>
+        <view class="uv-radio-body">
+          <view class="uv-radio-txt">{{item.txt}}</view>
+          <view class="uv-radio-sub">{{item.sub}}</view>
+        </view>
+      </view>
+    </view>
+    <view class="lab-tip"><text class="lab-hint">ABCD 不该是四个平排的盒子，它们是四颗待点亮的行星。</text>未选：纸白行星 + 墨色虚线轨道；选中：行星点亮成橙黄渐变、字母反白，外圈轨道亮起橙色并缓缓转动——一眼看到"此刻停在哪个选项"。整屏只有一个选项在转，符合动效红线。落地时替换 quiz 页现有选项结构。</view>
+  </view>
+
+  <view class="card mt">
+    <view class="lab-head">
+      <view class="lab-name">星夜开关</view>
+      <text class="pill pill-fill-green">uv-toggle</text>
+    </view>
+    <view class="lab-demo col gap">
+      <view class="row between" bindtap="toggleDemoOn">
+        <text class="lab-option">独立演示 · 当前{{demoOn ? '开' : '关'}}</text>
+        <view class="uv-toggle {{demoOn ? 'is-on' : ''}}"
+          hover-class="uv-toggle-hover" hover-start-time="0">
+          <view class="uv-toggle-knob"></view>
+        </view>
+      </view>
+    </view>
+    <view class="lab-tip">关 = 白天：暖黄槽 + 橙色太阳；开 = 星夜：墨蓝星空 + 奶油满月。不是 iOS 那套胶囊开关，和"星题舱"的名字是一路的。按下时整块下沉、滑块被捏扁。替换 <text class="code">me</text> 页两处原生 <text class="code">&lt;switch color="#FF8A2A"&gt;</text>。</view>
+  </view>
+
+  <!-- ============ 3. 加载与进度 ============ -->
+  <view class="sec-title">加载与进度</view>
+
+  <view class="card">
+    <view class="lab-head">
+      <view class="lab-name">轨道 loader</view>
+      <text class="pill pill-fill-orange">uv-orbit</text>
+    </view>
+    <view class="lab-demo row gap-l center-flex">
+      <view class="uv-orbit">
+        <view class="uv-orbit-dot d1"></view>
+        <view class="uv-orbit-dot d2"></view>
+        <view class="uv-orbit-dot d3"></view>
+      </view>
+      <view class="uv-orbit uv-orbit-sm">
+        <view class="uv-orbit-dot d1"></view>
+        <view class="uv-orbit-dot d2"></view>
+        <view class="uv-orbit-dot d3"></view>
+      </view>
+    </view>
+    <view class="lab-tip">三色星点绕轨，贴合"星能"语义。建议替换 <text class="code">quiz</text> / <text class="code">today</text> 加载分支里的「正在读取…」纯文字。</view>
+  </view>
+
+  <view class="card mt">
+    <view class="lab-head">
+      <view class="lab-name">不定量进度条</view>
+      <text class="pill pill-fill-cyan">uv-bar</text>
+    </view>
+    <view class="lab-demo"><view class="uv-bar"></view></view>
+    <view class="lab-tip">用于题库拉取、提交中等无法给出百分比的场景。</view>
+  </view>
+
+  <view class="card mt">
+    <view class="lab-head">
+      <view class="lab-name">星芒呼吸</view>
+      <text class="pill pill-fill-orange">uv-spark</text>
+    </view>
+    <view class="lab-demo row gap-l center-flex">
+      <text class="uv-spark lab-spark h-orange">★</text>
+      <text class="uv-spark lab-spark h-cyan">✦</text>
+      <text class="uv-spark lab-spark h-red">★</text>
+    </view>
+    <view class="lab-tip">替换现有 <text class="code">.anim-twinkle</text>——它只改 opacity，这里是缩放 + 透明度叠加，更有生命感。用于今日星轨里"今天"那颗星的提示。</view>
+  </view>
+
+  <view class="card mt">
+    <view class="lab-head">
+      <view class="lab-name">骨架屏</view>
+      <text class="pill pill-fill-blue">uv-sk</text>
+    </view>
+    <view class="lab-demo">
+      <view class="uv-sk uv-sk-lg uv-sk-w60"></view>
+      <view class="uv-sk uv-sk-w80"></view>
+      <view class="uv-sk uv-sk-w40"></view>
+      <view class="uv-sk uv-sk-block mt-s"></view>
+    </view>
+    <view class="lab-tip">替代裸文字"正在读取星题…"。建议只用在内容型卡片，按钮内联 loading 仍用 <text class="code">&lt;button loading&gt;</text>。</view>
+  </view>
+
+  <view class="card mt">
+    <view class="lab-head">
+      <view class="lab-name">进度条 + 流光</view>
+      <text class="pill pill-fill-green">uv-flow</text>
+    </view>
+    <view class="lab-demo">
+      <view class="row between mb-s"><text class="lab-option">星轨训练进度</text><text class="lab-option">3 / 5</text></view>
+      <view class="lab-progress"><view class="lab-progress-fill uv-flow"></view></view>
+    </view>
+    <view class="lab-tip">直接在现有 <text class="code">.gp-fill</text> / <text class="code">.bar-fill</text> 上加一个 class 即可，不改结构。流光是"扫一道、停一拍"，不是匀速硬扫，长期停在页面上也不躁。</view>
+  </view>
+
+  <view class="card mt">
+    <view class="lab-head">
+      <view class="lab-name">分段进度</view>
+      <text class="pill pill-fill-orange">uv-segs</text>
+    </view>
+    <view class="lab-demo">
+      <view class="uv-segs">
+        <view wx:for="{{segs}}" wx:key="*this"
+          class="uv-seg {{index < segLit ? 'is-on' : ''}} {{index === segLit - 1 ? 'is-tip' : ''}}"></view>
+      </view>
+      <view class="row gap-s mt">
+        <view class="btn btn-small btn-ghost uv-press" hover-class="uv-press-hover" hover-start-time="0" hover-stay-time="120" data-v="1" bindtap="setSegs">1 / 5</view>
+        <view class="btn btn-small btn-ghost uv-press" hover-class="uv-press-hover" hover-start-time="0" hover-stay-time="120" data-v="3" bindtap="setSegs">3 / 5</view>
+        <view class="btn btn-small btn-ghost uv-press" hover-class="uv-press-hover" hover-start-time="0" hover-stay-time="120" data-v="5" bindtap="setSegs">5 / 5</view>
+      </view>
+    </view>
+    <view class="lab-tip">一格一格亮，比连续条更有"打卡"感，也更贴星轨。已亮的格带硬阴影，正在亮的那格弹一下。用于"今日 5 题"这类天然分段的进度。</view>
+  </view>
+
+  <view class="card mt">
+    <view class="lab-head">
+      <view class="lab-name">刻度环（备选）</view>
+      <text class="pill pill-fill-green">uv-ring</text>
+    </view>
+    <view class="lab-demo row gap">
+      <view class="uv-ring">
+        <view wx:for="{{ringTicks}}" wx:key="*this"
+          class="uv-ring-tick {{index < ringLit ? 'is-on' : ''}} {{index === ringLit - 1 ? 'is-tip' : ''}}"
+          style="transform: rotate({{item}}deg) translateY(-82rpx)"></view>
+        <view class="uv-ring-core"><text class="uv-ring-num">{{ringP}}%</text></view>
+      </view>
+      <view class="flex1" style="padding-left:24rpx">
+        <view class="lab-name">{{ringLit}} / 20 格亮起</view>
+        <view class="lab-note">20 段小刻度绕一圈，每格 5%，纯 border 拼，没有任何兼容包袱。下面那个弧环更好看，但这一版是保底。</view>
+      </view>
+    </view>
+    <view class="row gap-s mt-s">
+      <view class="btn btn-small btn-ghost uv-press" hover-class="uv-press-hover" hover-start-time="0" hover-stay-time="120" data-p="25" bindtap="setRing">25%</view>
+      <view class="btn btn-small btn-ghost uv-press" hover-class="uv-press-hover" hover-start-time="0" hover-stay-time="120" data-p="68" bindtap="setRing">68%</view>
+      <view class="btn btn-small btn-ghost uv-press" hover-class="uv-press-hover" hover-start-time="0" hover-stay-time="120" data-p="92" bindtap="setRing">92%</view>
+    </view>
+  </view>
+
+  <view class="card mt">
+    <view class="lab-head">
+      <view class="lab-name">弧环</view>
+      <text class="pill pill-fill-orange">uv-ring-arc</text>
+    </view>
+    <view class="lab-scene">用在 report · 正确率环形图</view>
+    <view class="lab-demo row gap">
+      <view class="uv-ring-arc"
+        style="background-image:conic-gradient(from -90deg,#FFC24D 0deg,#FF8A2A {{ringDeg * 0.5}}deg,#E23A18 {{ringDeg}}deg,#E4DCC6 {{ringDeg}}deg)">
+        <view class="uv-ring-hole"><text class="uv-ring-num">{{ringP}}%</text></view>
+      </view>
+      <view class="flex1" style="padding-left:24rpx">
+        <view class="lab-name">一整条粗弧</view>
+        <view class="lab-note">26rpx 粗的一整条弧，由黄→橙→深橙三段渐变，中间一块奶油圆盘压着。比上面那 20 个小格子干净得多，也更有重量。</view>
+      </view>
+    </view>
+    <view class="row gap-s mt-s">
+      <view class="btn btn-small btn-ghost uv-press" hover-class="uv-press-hover" hover-start-time="0" hover-stay-time="120" data-p="25" bindtap="setRing">25%</view>
+      <view class="btn btn-small btn-ghost uv-press" hover-class="uv-press-hover" hover-start-time="0" hover-stay-time="120" data-p="68" bindtap="setRing">68%</view>
+      <view class="btn btn-small btn-ghost uv-press" hover-class="uv-press-hover" hover-start-time="0" hover-stay-time="120" data-p="92" bindtap="setRing">92%</view>
+    </view>
+    <view class="lab-tip"><text class="lab-hint">先看这个，再看上面那个。</text>这一版用 conic-gradient 画环，旧内核上会整条失效，所以我先垫了一层暖灰底色——不支持时会退化成"一整圈浅灰环"，不会凭空消失。<text class="lab-hint">麻烦在安卓真机上确认一眼</text>：是彩色弧就走这一版，整圈发灰就退回上面的刻度环。</view>
+  </view>
+
+  <!-- ============ 4. 数据与列表 ============ -->
+  <view class="sec-title">数据与列表</view>
+
+  <view class="card">
+    <view class="lab-head">
+      <view class="lab-name">数字滚动</view>
+      <text class="pill pill-fill-cyan">uv-count</text>
+    </view>
+    <view class="lab-demo row gap between">
+      <view class="col">
+        <text class="lab-big h-orange uv-count">{{counter}}</text>
+        <text class="lab-note">累计星能（天）</text>
+      </view>
+      <view class="col">
+        <text class="lab-big h-cyan uv-count">{{accuracy}}</text>
+        <text class="lab-note">星轨稳定度</text>
+      </view>
+      <view class="btn btn-small btn-orange uv-press" hover-class="uv-press-hover" hover-start-time="0" hover-stay-time="120" bindtap="replayCount">重播</view>
+    </view>
+    <view class="lab-tip">由 <text class="code">utils/count-up.js</text> 驱动。开启减少动态时直接落终值，不做逐帧 setData。建议落地 <text class="code">me</text> 页学习星图、<text class="code">report</text> 页稳定度。</view>
+  </view>
+
+  <view class="card mt">
+    <view class="lab-head">
+      <view class="lab-name">列表错峰入场</view>
+      <text class="pill pill-fill-green">uv-stagger</text>
+    </view>
+    <view class="lab-demo uv-stagger">
+      <view wx:for="{{staggerList}}" wx:key="id" class="lab-row uv-stagger-item uv-d{{index > 11 ? 12 : index + 1}}">
+        <text class="lab-row-idx">{{index + 1}}</text>
+        <text class="flex1">{{item.text}}</text>
+      </view>
+    </view>
+    <view class="row gap-s mt-s">
+      <view class="btn btn-small btn-cyan-o uv-press" hover-class="uv-press-hover" hover-start-time="0" hover-stay-time="120" bindtap="replayStagger">重播入场</view>
+    </view>
+    <view class="lab-tip">替代手写 <text class="code">card-in-d1/d2/d3</text>——现在只支持 3 项，且错题列表普遍超过 3 条。这里支持到 12 项且无需 JS。</view>
+  </view>
+
+  <view class="sec-title">空态</view>
+  <view class="card">
+    <view class="lab-head">
+      <view class="lab-name">迷航空态</view>
+      <text class="pill pill-fill-green">uv-lonely</text>
+    </view>
+    <view class="lab-demo row gap wrap center">
+      <view class="uv-lonely">
+        <view class="uv-lonely-sky">
+          <view class="uv-lonely-orbit"></view>
+          <text class="uv-lonely-star">✦</text>
+        </view>
+        <view class="uv-lonely-title">这条星轨全部校准完毕</view>
+        <view class="uv-lonely-sub">错题清零，孤星也可以休息了</view>
+      </view>
+      <view class="uv-lonely uv-lonely-dim">
+        <view class="uv-lonely-sky">
+          <view class="uv-lonely-orbit"></view>
+          <text class="uv-lonely-star">✦</text>
+        </view>
+        <view class="uv-lonely-title">信号在半路丢了</view>
+        <view class="uv-lonely-sub">题目没能加载出来，试试重新校准</view>
+      </view>
+    </view>
+    <view class="lab-tip">全页唯一循环动画 = 孤星呼吸（2.6s），石子星是静态的。建议落地：<text class="code">wrong</text> 页错题刷完、<text class="code">quiz</text> 加载失败，替换现在的纯文字占位。</view>
+  </view>
+
+  <!-- ============ 5. 弹层 ============ -->
+  <view class="sec-title">底部弹层</view>
+  <view class="card">
+    <view class="lab-head">
+      <view class="lab-name">遮罩淡入 + 拖拽跟手</view>
+      <text class="pill pill-fill-pink">uv-sheet-drag</text>
+    </view>
+    <view class="lab-demo">
+      <view class="btn btn-orange uv-press uv-ripple is-light"
+        hover-class="uv-ripple-hover" hover-start-time="0" hover-stay-time="480" bindtap="openSheet">打开弹层试拖</view>
+    </view>
+    <view class="lab-tip">向下拖动手柄，超过 110px 松手即关闭，否则回弹。现有 <text class="code">.sheet</text> 只有一条 <text class="code">sheet-up</text> 入场动画，没有跟手。</view>
+  </view>
+
+  <view class="lab-foot">
+    <text class="muted">落到正式页面前，建议先在这里逐项确认视觉效果与真机流畅度。</text>
+  </view>
+
+  <!-- ============ 弹层 ============ -->
+  <view wx:if="{{showSheet}}" class="overlay uv-overlay-in" bindtap="closeSheet">
+    <view class="sheet uv-sheet-drag {{sheetTracking ? 'is-tracking' : ''}}"
+      style="transform:translateY({{sheetOffset}}px)" catchtap="noop">
+      <view class="lab-grip-hit"
+        bindtouchstart="onGripStart" catchtouchmove="onGripMove"
+        bindtouchend="onGripEnd" bindtouchcancel="onGripEnd">
+        <view class="uv-sheet-grip {{sheetTracking ? 'is-dragging' : ''}}"></view>
+      </view>
+      <view class="sheet-title" style="text-align:center">星图校准</view>
+      <view class="text-secondary center mb">按住上方手柄向下拖动，或点遮罩关闭。</view>
+      <view class="card card-answer">
+        <view class="lab-option">拖拽位移：{{sheetOffset}} px</view>
+        <view class="lab-note">用 setData 驱动 transform。若真机掉帧，可升级为 wxs 事件处理器直接改样式，绕开逻辑层。</view>
+      </view>
+      <view class="btn btn-yellow btn-block mt uv-press" hover-class="uv-press-hover" hover-start-time="0" hover-stay-time="120" bindtap="closeSheet">收起</view>
+    </view>
+  </view>
+</view>

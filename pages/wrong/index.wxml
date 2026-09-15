@@ -1,0 +1,94 @@
+<view class="page wrong safe-bottom tab-page page-fade {{reduceMotion ? 'reduce-motion' : ''}}" style="padding-top:{{topPad}}px">
+  <view class="wrong-hero row between">
+    <view class="wrong-hero-copy flex1">
+      <view class="eyebrow">CALIBRATION</view>
+      <view class="page-title">待校准<text class="h-red">星轨</text></view>
+      <view class="page-sub">每道错题，都能重新对准。</view>
+    </view>
+    <view wx:if="{{items.length}}" class="wrong-hero-q"><xingcheng-q-variety scene="orbit-repair" motion="{{reduceMotion ? 'still' : 'auto'}}" playToken="{{wrongQPlayToken}}" size="252"/></view>
+  </view>
+
+  <!-- 四维筛选（可并存） -->
+  <view class="filter-block">
+    <view class="filter-dim">
+      <view class="filter-dim-label">知识点</view>
+      <scroll-view class="filter-scroll" scroll-x enable-flex>
+        <view class="filters row gap-s">
+          <view class="pill filter-pill {{kpAll ? 'filter-on' : ''}} uv-taprow" data-kp="all" bindtap="toggleKp" hover-class="uv-taprow-hover" hover-start-time="0" hover-stay-time="80" >全部</view>
+          <view wx:for="{{kpOptions}}" wx:key="id" class="pill filter-pill {{item.on ? 'filter-on' : ''}} uv-taprow"
+            data-kp="{{item.id}}" bindtap="toggleKp" hover-class="uv-taprow-hover" hover-start-time="0" hover-stay-time="80" >{{item.name}}</view>
+        </view>
+      </scroll-view>
+    </view>
+    <view class="filter-dim">
+      <view class="filter-dim-label">难度</view>
+      <view class="filters row gap-s wrap">
+        <view wx:for="{{diffOptions}}" wx:key="key" data-diff="{{item.key}}" bindtap="setDiff"
+          class="pill filter-pill {{diffFilter === item.key ? 'filter-on' : ''}} uv-taprow" hover-class="uv-taprow-hover" hover-start-time="0" hover-stay-time="80" >{{item.label}}</view>
+      </view>
+    </view>
+    <view class="filter-dim">
+      <view class="filter-dim-label">添加时间</view>
+      <view class="filters row gap-s wrap">
+        <view wx:for="{{timeOptions}}" wx:key="key" data-time="{{item.key}}" bindtap="setTime"
+          class="pill filter-pill {{timeFilter === item.key ? 'filter-on' : ''}} uv-taprow" hover-class="uv-taprow-hover" hover-start-time="0" hover-stay-time="80" >{{item.label}}</view>
+      </view>
+    </view>
+    <view class="filter-dim">
+      <view class="filter-dim-label">掌握状态</view>
+      <view class="filters row gap-s wrap">
+        <view wx:for="{{masteryOptions}}" wx:key="key" data-mastery="{{item.key}}" bindtap="setMastery"
+          class="pill filter-pill {{masteryFilter === item.key ? 'filter-on' : ''}} uv-taprow" hover-class="uv-taprow-hover" hover-start-time="0" hover-stay-time="80" >
+          <text wx:if="{{item.dot}}" class="filter-dot" style="background:{{item.dot}}"></text>{{item.label}}
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <view wx:if="{{loading}}" class="notice mt load-inline">
+  <xingcheng-q-scene scene="loading" motion="{{reduceMotion ? 'still' : 'auto'}}" size="200"/>
+  <view class="load-txt">正在读取错题…</view>
+</view>
+<view wx:elif="{{message}}" class="notice mt system-error uv-taprow" bindtap="onShow" hover-class="uv-taprow-hover" hover-start-time="0" hover-stay-time="80"><xingcheng-q-scene scene="failure" motion="{{reduceMotion ? 'still' : 'auto'}}" size="144"/><view>{{message}} · 点击重试</view></view>
+  <!-- 错题列表 -->
+  <view wx:if="{{items.length}}" class="wrong-list">
+    <view wx:for="{{items}}" wx:key="id" class="wrong-card card {{item.state === 'mastered' ? 'card-ok' : 'card-err'}} mt">
+      <view class="wc-side {{item.state === 'mastered' ? 'side-ok' : 'side-err'}}"></view>
+      <view class="wc-body">
+        <view class="row between">
+          <view class="row gap-s wrap">
+            <text class="pill pill-fill-pink">{{item.type}}</text>
+            <text class="pill pill-fill-blue">{{item.subject}}</text>
+          </view>
+          <view class="wc-status {{item.state === 'mastered' ? 'st-ok' : 'st-err'}}">
+            <text class="wc-dot"></text>{{item.state === 'mastered' ? '已校准' : '未掌握'}}
+          </view>
+        </view>
+        <view class="wc-meta text-secondary">{{item.point}} · {{item.diffLabel}} · {{item.addedDays === 0 ? '今天' : item.addedDays + '天前'}}收录</view>
+        <view class="wc-title {{item.state === 'mastered' ? 'title-ok' : 'title-err'}}">{{item.title}}</view>
+        <view class="wc-actions row gap-s">
+          <button class="btn btn-small {{item.state === 'mastered' ? 'btn-cyan-o' : 'btn-orange'}} uv-press" data-id="{{item.id}}" data-title="{{item.title}}" bindtap="redo" hover-class="uv-press-hover" hover-start-time="0" hover-stay-time="120">
+            {{item.state === 'mastered' ? '回看星图' : '重新校准'}}
+          </button>
+          <button class="btn btn-small btn-ghost uv-press" data-id="{{item.id}}" bindtap="remove" hover-class="uv-press-hover" hover-start-time="0" hover-stay-time="120">移出错轨</button>
+          <button class="btn btn-small btn-cyan-o uv-press" bindtap="goPractice" hover-class="uv-press-hover" hover-start-time="0" hover-stay-time="120">按薄弱点训练</button>
+        </view>
+      </view>
+    </view>
+
+    <view class="uv-lonely uv-lonely-sm">
+      <view class="uv-lonely-sky"><view class="uv-lonely-orbit"></view><text class="uv-lonely-star">✦</text></view>
+      <view class="uv-lonely-title">没有更多星轨了</view>
+    </view>
+  </view>
+
+  <!-- 空状态 -->
+  <view wx:elif="{{!loading && !message}}" class="empty-state">
+    <xingcheng-q-scene scene="empty" motion="{{reduceMotion ? 'still' : 'auto'}}" size="160"/>
+    <view class="empty-title">当前列表没有错题</view>
+    <view class="empty-sub">可以调整上方筛选查看其他错题，或进入训练舱开始练习。</view>
+    <button class="btn btn-orange mt uv-press" bindtap="goPractice" hover-class="uv-press-hover" hover-start-time="0" hover-stay-time="120">去训练舱看看</button>
+  </view>
+  <view wx:if="{{items.length}}" class="text-secondary mt" style="text-align:center">已显示 {{items.length}} / {{totalCount}} 道错题</view>
+  <button wx:if="{{hasMore}}" class="btn btn-ghost mt load-more" bindtap="onReachBottom">加载更多错题</button>
+</view>

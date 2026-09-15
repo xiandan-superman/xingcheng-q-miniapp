@@ -1,0 +1,88 @@
+.tab-shell {
+  position: fixed;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 100;
+  padding-bottom: env(safe-area-inset-bottom);
+  background: rgba(255, 253, 244, .98);
+  border-top: 3rpx solid #17191F;
+  border-radius: 30rpx 30rpx 0 0;
+  box-shadow: 0 -6rpx 22rpx rgba(255, 138, 42, .14);
+}
+
+.tab-bar {
+  height: 116rpx;
+  padding: 8rpx 20rpx 6rpx;
+  display: flex; flex-direction: row;
+  align-items: center;
+}
+
+.tab-item {
+  width: 25%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: #5B564C;
+  font-size: 22rpx;
+  font-weight: 700;
+}
+
+.tab-ico-wrap {
+  position: relative;
+  width: 64rpx;
+  height: 64rpx;
+  display: flex; flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: all .18s ease;
+}
+
+.tab-icon { width: 52rpx; height: 52rpx; }
+
+/* 选中：橙色图标 + 淡橙圆晕（图标本身已是橙色填充） */
+.tab-item.is-active {
+  color: #FF8A2A;
+  font-weight: 900;
+}
+.tab-item.is-active .tab-ico-wrap {
+  background: radial-gradient(circle, rgba(255,138,42,.22) 0%, rgba(255,138,42,0) 72%);
+}
+/* 弹跳只挂在切 tab 瞬间的 is-pop 上（360ms 后由 JS 摘掉）。
+   不能常驻在 .is-active 上——否则任何触发 tab-bar 重算样式的操作
+   （例如「我的」页拨动减少动态开关）都会让动画从头误播。 */
+.tab-item.is-active .tab-icon { width: 56rpx; height: 56rpx; }
+.tab-icon.is-pop {
+  animation: tab-pop .3s cubic-bezier(.22,1.4,.5,1);
+}
+@keyframes tab-pop {
+  0% { transform: scale(.7); }
+  60% { transform: scale(1.15); }
+  100% { transform: scale(1); }
+}
+.tab-item:active .tab-ico-wrap { transform: scale(.9); }
+
+.tab-label { line-height: 30rpx; margin-top: 2rpx; }
+
+.tab-dot {
+  position: absolute;
+  top: 6rpx;
+  right: 6rpx;
+  width: 13rpx;
+  height: 13rpx;
+  border-radius: 50%;
+  background: #FF5A64;
+  border: 2rpx solid #FFFDF4;
+}
+
+/* 动效闸门：tabBar 不在页面节点树内，页面上的 .reduce-motion 管不到它，
+   所以这里单独一套规则，由 index.js 的 syncMotion / setReduceMotion 驱动 */
+.tab-shell.reduce-motion .tab-item,
+.tab-shell.reduce-motion .tab-ico-wrap,
+.tab-shell.reduce-motion .tab-icon {
+  animation: none !important;
+  transition: none !important;
+}

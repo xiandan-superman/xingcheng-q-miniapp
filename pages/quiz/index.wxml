@@ -1,0 +1,174 @@
+<view class="page quiz has-navbar {{reduceMotion ? 'reduce-motion' : ''}}" style="padding-top:{{topPad}}px;padding-bottom:{{kbPad}}px">
+  <!-- 自绘通知（替代 wx.showToast 系统样式） -->
+  <view wx:if="{{uvToast.show}}" class="uv-toast {{uvToast.type === 'err' ? 'uv-toast-err' : uvToast.type === 'star' ? '' : 'uv-toast-info'}}">
+    <text class="uv-toast-star">{{uvToast.type === 'err' ? '✗' : uvToast.type === 'star' ? '★' : '✦'}}</text>
+    <text class="uv-toast-txt">{{uvToast.text}}</text>
+    <view class="uv-toast-bar"></view>
+  </view>
+  <!-- 顶栏 -->
+  <view class="topbar">
+    <view class="back-btn uv-press" bindtap="back" role="button" aria-label="返回" hover-class="uv-press-hover" hover-start-time="0" hover-stay-time="120"><image src="/assets/icons/ic-back.png" mode="aspectFit"/></view>
+    <view class="nav-title">
+      <text>{{navMain}}</text>
+      <text class="nav-sub">{{navSub}}</text>
+    </view>
+    <view class="nav-right"><view class="timer-sticker">{{timeText}}</view></view>
+  </view>
+
+  <!-- 错题来源标识 -->
+  <view wx:if="{{scene === 'wrong' && question}}" class="wrong-source">
+    <image src="/assets/icons/ic-correction.png" mode="aspectFit" style="width:28rpx;height:28rpx"/>
+    <text>来自待校准星轨 · {{question.subject}}</text>
+  </view>
+
+  <!-- 加载 / 错误 -->
+  <view wx:if="{{loading}}" class="quiz-state center">
+    <xingcheng-q-scene scene="loading" motion="{{reduceMotion ? 'still' : 'auto'}}" size="220"/>
+    <view class="muted mt">正在打开星题…</view>
+  </view>
+  <view wx:elif="{{message}}" class="quiz-state center">
+    <xingcheng-q-scene scene="failure" motion="{{reduceMotion ? 'still' : 'auto'}}" size="144"/>
+    <view class="quiz-msg">{{message}}</view>
+    <view class="quiz-err-actions row gap center mt">
+      <button class="btn btn-cyan-o uv-press" bindtap="back" hover-class="uv-press-hover" hover-start-time="0" hover-stay-time="120">返回</button>
+      <button class="btn btn-yellow uv-press" bindtap="retryLoad" hover-class="uv-press-hover" hover-start-time="0" hover-stay-time="120">重试</button>
+    </view>
+  </view>
+
+  <scroll-view wx:elif="{{question}}" scroll-y class="quiz-scroll" scroll-into-view="{{scrollIntoView}}" scroll-with-animation="{{!reduceMotion}}" enable-flex style="height:{{scrollH}}px">
+    <!-- 题组进度（专项训练） -->
+    <view wx:if="{{isGroup}}" class="group-prog">
+      <view class="gp-bar"><view class="gp-fill" style="width:{{(groupIndex) / groupTotal * 100}}%"></view></view>
+      <view class="row between gp-copy"><text class="muted">第 {{groupIndex + 1}} / {{groupTotal}} 题</text><text class="muted">已答 {{groupIndex}} 题</text></view>
+    </view>
+    <view wx:if="{{isGroup}}" class="flow-hint">整套答完后，统一查看答案与自评</view>
+
+    <!-- 跃迁能量束（综合题文字作答进度） -->
+    <view wx:if="{{!isChoice}}" class="beam">
+      <view class="beam-seg seg-{{segments[0]}}"></view>
+      <view class="beam-seg seg-{{segments[1]}}"></view>
+      <view class="beam-seg seg-{{segments[2]}}"></view>
+    </view>
+    <view wx:if="{{!isChoice}}" class="beam-copy row between">
+      <text class="{{stageKey === 'read' ? 'beam-stage' : ''}}">读题</text>
+      <text class="{{stageKey === 'answer' ? 'beam-stage' : ''}}">作答</text>
+      <text class="{{stageKey === 'wait' ? 'beam-stage' : ''}}">待返回</text>
+    </view>
+
+    <!-- 题干卡：相图/题图嵌进题干滚动流，保留放大预览 -->
+    <view class="stem-card card card-warmline mt card-in">
+      <view wx:if="{{!isGroup || groupIndex === 0}}" class="stem-role"><xingcheng-q-knowledge motion="{{reduceMotion ? 'still' : 'auto'}}" size="224"/></view>
+      <view wx:elif="{{isGroup && groupIndex === 1}}" class="stem-role"><xingcheng-q-story scene="idea-bubble" motion="{{reduceMotion ? 'still' : 'auto'}}" size="152"/></view>
+      <view class="row gap-s wrap mb-s">
+        <text class="pill pill-fill-pink">{{question.type}}</text>
+        <text class="pill pill-fill-blue">{{question.subject}}</text>
+      </view>
+      <view class="stem-text formula"><rich-text nodes="{{stemNodes}}"></rich-text></view>
+      <block wx:for="{{images}}" wx:key="*this">
+        <view class="stem-diagram uv-taprow" data-url="{{item}}" bindtap="previewDiagram" hover-class="uv-taprow-hover" hover-start-time="0" hover-stay-time="80" >
+          <view class="row between mb-s">
+            <view class="diagram-title">题图 {{index + 1}}</view>
+            <view class="zoom-btn row gap-s"><image src="/assets/icons/ic-zoom.png" mode="aspectFit" style="width:30rpx;height:30rpx"/><text>放大星图</text></view>
+          </view>
+          <view class="diagram-frame">
+            <image class="diagram-image" src="{{item}}" mode="widthFix" binderror="imageFailed"/>
+            <text class="corner c1">✦</text><text class="corner c2">✦</text><text class="corner c3">✦</text><text class="corner c4">✦</text>
+          </view>
+        </view>
+      </block>
+    </view>
+
+    <!-- 选择题选项：星轨行星（multi 可多颗点亮，但 is-multi 关掉轨道转动，守循环动画红线） -->
+    <view wx:if="{{isChoice}}" class="options mt {{question.kind === 'multi' ? 'is-multi' : ''}}">
+      <view wx:for="{{optionNodes}}" wx:key="key"
+        class="uv-radio-orbit {{item.selected ? 'is-on' : ''}} card-in"
+        hover-class="uv-taprow-hover" hover-start-time="0" hover-stay-time="80"
+        data-key="{{item.key}}" bindtap="choose">
+        <view class="uv-radio-planet"><text class="uv-radio-key">{{item.mark || item.key}}</text></view>
+        <view class="uv-radio-body">
+          <view class="uv-radio-txt formula"><rich-text nodes="{{item.nodes}}"></rich-text></view>
+        </view>
+      </view>
+      <view class="multi-tip muted" wx:if="{{question.kind === 'multi'}}">多选题，可选择多个 · 再点一次取消</view>
+    </view>
+
+    <!-- 短答/填空/综合题作答：绑定 value，输入即时同步；进度类 setData 仍节流 -->
+    <block wx:else>
+      <view class="subq card card-answer mt card-in" wx:for="{{question.parts}}" wx:key="id" id="sq-{{index}}">
+        <view class="sq-head row gap-s">
+          <view class="sq-num num-{{partColors[index % 3]}}">{{index + 1}}</view>
+          <view class="sq-title">{{item.title}}</view>
+        </view>
+        <view wx:if="{{item.prompt}}" class="sq-prompt text-secondary formula"><rich-text nodes="{{item.promptNodes}}"/></view>
+        <view class="sq-input-wrap {{focusIdx === index ? 'focus' : ''}}">
+          <image class="sq-pen" src="/assets/icons/ic-pen.png" mode="aspectFit"/>
+          <textarea class="sq-input" data-index="{{index}}" value="{{answers[index]}}" bindinput="answerInput"
+            bindfocus="onFocus" bindblur="onBlur" placeholder="{{item.placeholder}}" placeholder-class="sq-ph"
+            maxlength="1000" auto-height adjust-position="{{false}}" cursor-spacing="120" hold-keyboard="{{true}}" show-confirm-bar="{{false}}"/>
+        </view>
+      </view>
+    </block>
+
+  </scroll-view>
+
+  <!-- 底部操作：固定底栏，随键盘上移避让 -->
+  <view wx:if="{{question && !message && !loading}}" class="action-bar quiz-action-bar {{kbHeight > 0 ? 'kb-up' : ''}}" style="bottom:{{kbHeight}}px">
+    <button class="btn btn-cyan-o btn-small uv-press" bindtap="openCorrection" hover-class="uv-press-hover" hover-start-time="0" hover-stay-time="120">星图校准</button>
+    <button class="btn btn-yellow flex1 uv-press" loading="{{submitting}}" disabled="{{submitting}}" bindtap="submit" hover-class="uv-press-hover" hover-start-time="0" hover-stay-time="120">
+      {{submitting ? '正在发送…' : submitLabel}}
+    </button>
+  </view>
+
+  <view wx:if="{{submitFailure}}" class="correction-success overlay">
+    <view class="sheet correction-success-card"><xingcheng-q-scene scene="failure" motion="{{reduceMotion ? 'still' : 'auto'}}" size="180"/><view class="sheet-title">信号没有送达</view><view class="corr-sub">请检查网络后重新提交</view></view>
+  </view>
+
+  <view wx:if="{{correctionSuccess}}" class="correction-success overlay">
+    <view class="sheet correction-success-card"><xingcheng-q-scene scene="signal" motion="{{reduceMotion ? 'still' : 'auto'}}" size="210"/><view class="sheet-title">校准信号已发射</view><view class="corr-sub">可在「我的 → 校准记录」查看处理状态</view></view>
+  </view>
+
+  <!-- 纠错弹层（SCREEN9 最小集） -->
+  <view wx:if="{{showCorrection}}" class="overlay uv-taprow" bindtap="closeCorrection" hover-class="uv-taprow-hover" hover-start-time="0" hover-stay-time="80" >
+    <view class="sheet corr-sheet" catchtap="noop">
+      <view class="sheet-handle"></view>
+      <view class="corr-head">
+        <view class="sheet-title" style="text-align:center">题目反馈 · 星图<text class="h-cyan">校准</text></view>
+        <view class="corr-sub">发现星图有偏差？帮我们校准它 ✦</view>
+      </view>
+
+      <view class="corr-qcard card mb">
+        <view class="corr-q-label">当前星题</view>
+        <view class="corr-q-meta">{{corrSubject}} · {{corrType}}</view>
+        <view class="corr-q-stem">{{corrStem}}</view>
+      </view>
+
+      <view class="type-label">问题类型</view>
+      <view class="corr-radios mb">
+        <view wx:for="{{correctionTypes}}" wx:key="*this" data-type="{{item}}" bindtap="pickCorrection"
+          class="corr-radio {{correctionType === item ? 'is-on' : ''}} uv-taprow" hover-class="uv-taprow-hover" hover-start-time="0" hover-stay-time="80" >
+          <view class="corr-dot"></view>
+          <text>{{item}}</text>
+        </view>
+      </view>
+
+      <view class="type-label">校准说明</view>
+      <textarea class="input-box" style="min-height:160rpx" value="{{correctionText}}" bindinput="correctionInput"
+        placeholder="请描述你发现的星图偏差…" placeholder-class="sq-ph" maxlength="300" auto-height adjust-position="{{false}}"/>
+
+      <view class="type-label mt">附图（可选）</view>
+      <view class="corr-img-box uv-taprow" bindtap="pickCorrectionImage" hover-class="uv-taprow-hover" hover-start-time="0" hover-stay-time="80" >
+        <block wx:if="{{correctionLocalPath}}">
+          <image class="corr-preview" src="{{correctionLocalPath}}" mode="aspectFit" catchtap="previewCorrectionImage"/>
+          <view class="corr-img-hint">点击重选 · 无图也可提交</view>
+        </block>
+        <block wx:else>
+          <image class="corr-img-ico" src="/assets/icons/ic-correction.png" mode="aspectFit"/>
+          <view class="corr-img-hint">添加校准参考图</view>
+        </block>
+      </view>
+
+      <button class="btn btn-yellow btn-block mt uv-press" loading="{{sendingCorrection}}" disabled="{{sendingCorrection}}" bindtap="sendCorrection" hover-class="uv-press-hover" hover-start-time="0" hover-stay-time="120">提交反馈</button>
+      <view class="corr-foot">提交后可在「我的 → 星图校准记录」查看处理状态</view>
+    </view>
+  </view>
+</view>

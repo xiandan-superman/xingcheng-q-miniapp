@@ -1,0 +1,4 @@
+{
+  "usingComponents": { "xingcheng-q": "/components/xingcheng-q/index", "xingcheng-q-knowledge": "/components/xingcheng-q-knowledge/index", "xingcheng-q-story": "/components/xingcheng-q-story/index", "xingcheng-q-scene": "/components/xingcheng-q-scene/index" },
+  "navigationBarTitleText": "综合星题"
+}

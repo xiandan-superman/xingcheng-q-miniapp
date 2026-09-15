@@ -1,0 +1,65 @@
+<view class="page report has-navbar {{reduceMotion ? 'reduce-motion' : ''}}" style="padding-top:{{topPad}}px">
+  <!-- 自绘通知（替代 wx.showToast 系统样式） -->
+  <view wx:if="{{uvToast.show}}" class="uv-toast {{uvToast.type === 'err' ? 'uv-toast-err' : uvToast.type === 'star' ? '' : 'uv-toast-info'}}">
+    <text class="uv-toast-star">{{uvToast.type === 'err' ? '✗' : uvToast.type === 'star' ? '★' : '✦'}}</text>
+    <text class="uv-toast-txt">{{uvToast.text}}</text>
+    <view class="uv-toast-bar"></view>
+  </view>
+  <view class="topbar">
+    <view class="back-btn uv-press" bindtap="back" hover-class="uv-press-hover" hover-start-time="0" hover-stay-time="120"><image src="/assets/icons/ic-back.png" mode="aspectFit"/></view>
+    <view class="nav-title">学习报告 · 星轨报告</view>
+    <view class="nav-right"></view>
+  </view>
+
+  <!-- 分享卡预览 -->
+  <view class="share-card card card-cream">
+    <view class="tape"></view>
+    <view class="row between sc-head">
+      <view>
+        <view class="eyebrow">WEEKLY ORBIT</view>
+        <view class="report-title"><view>近7天星轨</view><view>学习足迹</view></view>
+      </view>
+      <view class="sc-q"><xingcheng-q-scene scene="{{loading ? 'loading' : (message ? 'failure' : (total === 0 ? 'empty' : 'report'))}}" motion="{{loading || message || total === 0 ? (reduceMotion ? 'still' : 'auto') : reportMotion}}" size="210"/></view>
+    </view>
+    <view class="period">{{loading ? '正在读取报告…' : message || period}}</view>
+    <button wx:if="{{message && !loading}}" bindtap="loadReport">重新读取报告</button>
+
+    <view class="score-row row gap">
+      <view class="uv-ring-arc"
+        style="background-image:conic-gradient(from -90deg,#FFC24D 0deg,#FF8A2A {{accuracy * 1.8}}deg,#E23A18 {{accuracy * 3.6}}deg,#E4DCC6 {{accuracy * 3.6}}deg)">
+        <view class="uv-ring-hole"><text class="uv-ring-num">{{!loading && !message && total === 0 ? '—' : accuracy + '%'}}</text></view>
+      </view>
+      <view class="score-label"><view>星轨稳定度</view><text class="score-sub">{{!loading && !message && total === 0 ? '近7天暂无作答记录' : '近7天实际作答统计'}}</text></view>
+    </view>
+
+    <view class="sc-stats">
+      <view class="sc-stat"><text class="sc-num">{{total}}</text><text class="sc-lab">答题</text></view>
+      <view class="sc-stat"><text class="sc-num">{{streak}}</text><text class="sc-lab">连续天数</text></view>
+      <view class="sc-stat"><text class="sc-num">{{hours}}</text><text class="sc-lab">学习时长</text></view>
+    </view>
+
+    <view class="sc-focus">
+      <view class="sc-focus-label">本周重点校准</view>
+      <view class="sc-focus-value">{{focus}}</view>
+    </view>
+    <view class="sc-bottom row between">
+      <view>
+        <view class="sc-footer">量子星橙 · 每天解一道星题 ✦</view>
+        <view class="sc-tip muted">扫码，和我一起每天一道题</view>
+      </view>
+      <view class="sc-qrcode">
+        <view class="qr-grid">
+          <view class="qr-corner tl"></view><view class="qr-corner tr"></view><view class="qr-corner bl"></view>
+        </view>
+        <view class="qr-label">小程序码</view>
+      </view>
+    </view>
+  </view>
+
+  <view class="report-actions mt-l">
+    <button class="btn btn-yellow btn-block mb-s uv-press" loading="{{saving}}" bindtap="saveCard" hover-class="uv-press-hover" hover-start-time="0" hover-stay-time="120">生成我的星光卡</button>
+    <button class="btn btn-cyan-o btn-block uv-press" open-type="share" hover-class="uv-press-hover" hover-start-time="0" hover-stay-time="120">分享给朋友</button>
+  </view>
+
+  <canvas id="shareCanvas" type="2d" class="export-canvas"></canvas>
+</view>

@@ -1,0 +1,108 @@
+/* ============ 报告页（顶部间距由 JS 精确注入） ============ */
+
+.share-card { padding: 38rpx 30rpx 30rpx; overflow: hidden; }
+.sc-head { align-items: flex-start; }
+.report-title {
+  font-family: "ZCOOL KuaiLe Local", sans-serif;
+  font-size: 44rpx;
+  line-height: 1.2;
+}
+.sc-q { flex: none; width: 210rpx; height: 210rpx; margin:-28rpx -18rpx -28rpx 0; display: flex; flex-direction: row; align-items: center; justify-content: center; background: transparent; }
+
+.period {
+  display: inline-block;
+  margin-top: 14rpx;
+  font-size: 23rpx;
+  color: var(--muted);
+  background: var(--card);
+  border: 2rpx solid var(--ink);
+  border-radius: 99rpx;
+  padding: 6rpx 20rpx;
+}
+
+.score-row { align-items: baseline; margin: 26rpx 0 8rpx; }
+.score-big {
+  font-family: "ZCOOL KuaiLe Local", sans-serif;
+  font-size: 120rpx;
+  color: var(--orange);
+  line-height: 1;
+  letter-spacing: 0;
+  display: inline-flex;
+  align-items: baseline;
+}
+.score-unit { font-size: 44rpx; color: var(--ink); margin-left: 2rpx; letter-spacing: 0; font-weight: 900; }
+.score-label { font-size: 27rpx; font-weight: 800; line-height: 1.5; }
+.score-sub { font-size: 21rpx; color: var(--green); font-weight: 700; }
+
+.sc-stats { display: flex; flex-direction: row; gap: 16rpx; margin: 22rpx 0; }
+.sc-stat {
+  flex: 1;
+  background: var(--card);
+  border: 3rpx solid var(--ink);
+  border-radius: 18rpx;
+  padding: 18rpx 0;
+  text-align: center;
+  box-shadow: 3rpx 4rpx 0 rgba(255,138,42,.25);
+}
+.sc-num {
+  display: block;
+  font-family: "ZCOOL KuaiLe Local", sans-serif;
+  font-size: 40rpx;
+  color: var(--orange);
+}
+.sc-lab { font-size: 21rpx; color: var(--muted); }
+
+.sc-focus {
+  background: var(--card);
+  border-radius: 18rpx;
+  border: 3rpx solid var(--cream-line);
+  padding: 20rpx 24rpx;
+}
+.sc-focus-label { font-size: 21rpx; color: var(--muted); }
+.sc-focus-value { font-size: 27rpx; font-weight: 800; margin-top: 6rpx; }
+
+.sc-footer {
+  font-size: 22rpx;
+  color: var(--ink);
+  font-weight: 700;
+  margin-top: 20rpx;
+}
+.sc-tip { font-size: 20rpx; margin-top: 6rpx; }
+
+/* 小程序码占位 */
+.sc-bottom { align-items: flex-end; margin-top: 24rpx; padding-top: 20rpx; border-top: 2rpx dashed rgba(23,25,31,.12); }
+.sc-qrcode {
+  width: 120rpx; height: 120rpx; flex: none;
+  border: 3rpx solid var(--ink);
+  border-radius: 18rpx;
+  background: var(--card);
+  display: flex; flex-direction: row; align-items: center; justify-content: center;
+  position: relative;
+}
+.qr-grid { position: absolute; top: 12rpx; left: 12rpx; right: 12rpx; bottom: 12rpx; }
+.qr-corner { position: absolute; width: 26rpx; height: 26rpx; border: 5rpx solid var(--orange); }
+.qr-corner.tl { top: 0; left: 0; border-right: none; border-bottom: none; border-radius: 6rpx 0 0 0; }
+.qr-corner.tr { top: 0; right: 0; border-left: none; border-bottom: none; border-radius: 0 6rpx 0 0; }
+.qr-corner.bl { bottom: 0; left: 0; border-right: none; border-top: none; border-radius: 0 0 0 6rpx; }
+.qr-label { position: absolute; bottom: 6rpx; font-size: 14rpx; color: var(--muted); }
+
+/* 离屏画布：透明但保留渲染（不用超大负偏移） */
+.export-canvas {
+  position: fixed;
+  right: 0;
+  bottom: 0;
+  width: 300px;
+  height: 390px;
+  opacity: 0;
+  pointer-events: none;
+  z-index: -1;
+}
+
+/* 已确认的页面细节优化：不修改角色选择器 */
+.sc-stat { min-width:0; }
+.sc-num { font-variant-numeric:tabular-nums; }
+.sc-focus-value { line-height:1.7; overflow-wrap:break-word; }
+.score-sub { line-height:1.6; }
+
+.score-sub { display:block; margin-top:8rpx; }
+.score-label { min-width:0; flex:1; }
