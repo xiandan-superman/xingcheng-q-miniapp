@@ -58,6 +58,8 @@ Page({
   },
 
   onHide() {
+    const entry = this.selectComponent && this.selectComponent('#welcomeEntry')
+    if (entry && typeof entry.stop === 'function') entry.stop()
     if (this.data.qAccessory !== 'none') this.setData({ qAccessory: 'none' })
   },
 
@@ -69,7 +71,11 @@ Page({
   },
 
   enterToday() {
-    wx.switchTab({ url: '/pages/today/index' })
+    if (this._enteringToday) return
+    this._enteringToday = true
+    const entry = this.selectComponent && this.selectComponent('#welcomeEntry')
+    if (entry && typeof entry.stop === 'function') entry.stop()
+    wx.switchTab({ url: '/pages/today/index', fail: () => { this._enteringToday = false } })
   },
 
   async loadAccessState(opts) {

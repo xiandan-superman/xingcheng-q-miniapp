@@ -22,7 +22,7 @@
       <view class="sc-q"><xingcheng-q-scene scene="{{loading ? 'loading' : (message ? 'failure' : (total === 0 ? 'empty' : 'report'))}}" motion="{{loading || message || total === 0 ? (reduceMotion ? 'still' : 'auto') : reportMotion}}" size="210"/></view>
     </view>
     <view class="period">{{loading ? '正在读取报告…' : message || period}}</view>
-    <button wx:if="{{message && !loading}}" bindtap="loadReport">重新读取报告</button>
+    <button wx:if="{{message && !loading}}" class="btn btn-small uv-press" bindtap="loadReport" hover-class="uv-press-hover" hover-start-time="0" hover-stay-time="120">重新读取报告</button>
 
     <view class="score-row row gap">
       <view class="uv-ring-arc"

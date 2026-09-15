@@ -22,18 +22,18 @@
 </view>
 <view wx:elif="{{message}}" class="notice mt system-error uv-taprow" bindtap="onShow" hover-class="uv-taprow-hover" hover-start-time="0" hover-stay-time="80"><xingcheng-q-scene scene="failure" motion="{{reduceMotion ? 'still' : 'auto'}}" size="144"/><view>{{message}} · 点击重试</view></view>
 
-  <view wx:if="{{hasDraft}}" class="resume-card card card-data mt uv-taprow" bindtap="continuePractice" hover-class="uv-taprow-hover">
+  <view wx:if="{{hasDraft}}" class="resume-card card card-data mt uv-press" bindtap="continuePractice" hover-class="uv-press-hover" hover-start-time="0" hover-stay-time="120">
     <view class="flex1"><view class="resume-title">继续未完成的练习</view><view class="flow-hint">从上次保存的位置接续星轨 ›</view></view>
     <xingcheng-q-scene scene="resume" motion="{{resumeMotion}}" size="168"/>
   </view>
-  <button wx:if="{{reviewSessionId}}" class="btn btn-ghost btn-block mt" bindtap="continueReview">继续查看上次解析与自评</button>
+  <button wx:if="{{reviewSessionId}}" class="btn btn-ghost btn-block mt uv-press" bindtap="continueReview" hover-class="uv-press-hover" hover-start-time="0" hover-stay-time="120">继续查看上次解析与自评</button>
   <view class="sec-title">薄弱星轨坐标</view>
   <view class="chips row wrap gap-s {{shake ? 'chips-shake' : ''}}">
     <view wx:for="{{weakPoints}}" wx:key="id" data-id="{{item.id}}" bindtap="togglePoint"
-      class="kp-chip {{item.selected ? 'kp-on' : ''}} uv-taprow" hover-class="uv-taprow-hover" hover-start-time="0" hover-stay-time="80" >
-      <text class="kp-name">{{item.name}}</text>
-      <text wx:if="{{item.recommended && !item.selected}}" class="kp-rec">系统建议</text>
-      <text wx:if="{{item.selected}}" class="kp-check">✓</text>
+      class="uv-tag-pick {{item.selected ? 'is-on' : ''}} {{selectedCount >= 3 && !item.selected ? 'is-blocked' : ''}}"
+      hover-class="uv-tag-pick-hover" hover-start-time="0" hover-stay-time="80">
+      <text>{{item.name}}</text>
+      <view class="uv-tag-pick-mark"></view>
     </view>
   </view>
 

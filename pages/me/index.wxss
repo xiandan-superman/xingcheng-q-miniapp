@@ -111,6 +111,21 @@
 }
 .menu-label { font-size: 27rpx; font-weight: 700; }
 .time-picker { font-size: 21rpx; color: var(--orange); margin-top: 4rpx; }
+.reminder-copy { min-width: 0; flex: 1; align-items: flex-start; }
+.time-slots { margin-top: 14rpx; }
+.time-slot {
+  padding: 9rpx 16rpx;
+  border: 3rpx solid var(--ink);
+  border-radius: 999rpx;
+  background: var(--card);
+  box-shadow: 2rpx 3rpx 0 rgba(23,25,31,.55);
+  font-size: 21rpx;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  transition: background .18s ease, box-shadow .18s ease, transform .18s ease;
+}
+.time-slot.slot-on { background: var(--yellow); box-shadow: none; transform: translate(2rpx, 2rpx); }
+.reduce-motion .time-slot { transition: none; }
 .menu-item {
   display: flex; flex-direction: row;
   align-items: center;
@@ -188,6 +203,9 @@
 .correction-date { margin-top: 12rpx; font-size: 21rpx; }
 .metrics-with-q { position:relative; padding-right:148rpx; }
 .metrics-q { position:absolute; right:8rpx; bottom:4rpx; width:136rpx; height:136rpx; }
-.reminder-success { position:fixed; left:32rpx; right:32rpx; bottom:calc(150rpx + env(safe-area-inset-bottom)); z-index:80; display:flex; align-items:center; gap:18rpx; padding:12rpx 22rpx; }
-.reminder-success-title { font-size:28rpx; font-weight:900; margin-bottom:6rpx; }
+.reminder-success { position:fixed; left:32rpx; right:32rpx; bottom:calc(180rpx + constant(safe-area-inset-bottom)); bottom:calc(180rpx + env(safe-area-inset-bottom)); z-index:120; min-height:132rpx; box-sizing:border-box; display:flex; align-items:center; gap:14rpx; padding:8rpx 20rpx; overflow:hidden; }
+.reminder-success-q { width:116rpx; height:116rpx; flex:none; overflow:hidden; }
+.reminder-success-copy { flex:1; min-width:0; }
+.reminder-success-title { font-size:27rpx; line-height:1.25; font-weight:900; margin-bottom:6rpx; }
+.reminder-success-sub { color:var(--muted); font-size:22rpx; line-height:1.4; overflow-wrap:break-word; }
 .me-system-error { display:flex; flex-direction:column; align-items:center; text-align:center; }

@@ -15,14 +15,14 @@
   <xingcheng-q-scene scene="loading" motion="{{reduceMotion ? 'still' : 'auto'}}" size="220"/>
   <view class="load-txt">正在读取结果…</view>
 </view>
-<view wx:elif="{{message}}" class="card mt load-inline"><view class="load-txt">{{message}}</view><button class="btn btn-yellow mt-s" bindtap="retryResult">重试</button></view>
+<view wx:elif="{{message}}" class="card mt load-inline"><view class="load-txt">{{message}}</view><button class="btn btn-yellow mt-s uv-press" bindtap="retryResult" hover-class="uv-press-hover" hover-start-time="0" hover-stay-time="120">重试</button></view>
   <block wx:if="{{!loading && !message}}">
   <view wx:if="{{practiceReview}}" class="notice notice-warm mt mb">整套已答完 · 第 {{reviewIndex + 1}} / {{reviewTotal}} 题</view>
   <view class="card mt mb">
     <rich-text nodes="{{resultStemNodes}}"/>
     <image wx:for="{{images}}" wx:key="*this" class="review-diagram mt-s" src="{{item}}" mode="widthFix" data-url="{{item}}" bindtap="previewDiagram" binderror="imageFailed"/>
     <view wx:if="{{imageMessage}}" class="notice notice-err mt-s">{{imageMessage}}</view>
-    <button wx:if="{{imageMessage}}" class="btn btn-ghost mt-s" loading="{{imagesLoading}}" disabled="{{imagesLoading}}" bindtap="loadQuestionImages">重新加载题图</button>
+    <button wx:if="{{imageMessage}}" class="btn btn-ghost mt-s uv-press" loading="{{imagesLoading}}" disabled="{{imagesLoading}}" bindtap="loadQuestionImages" hover-class="uv-press-hover" hover-start-time="0" hover-stay-time="120">重新加载题图</button>
     <view wx:for="{{resultOptions}}" wx:key="key" class="row gap-s mt-s">
       <text>{{item.mark}}.</text><rich-text class="flex1" nodes="{{item.nodes}}"/>
     </view>
@@ -126,7 +126,7 @@
 
   <!-- 底部操作（产品：主路径收敛） -->
   <view class="result-actions mt-l">
-    <button wx:if="{{practiceReview && hasPrevious}}" class="btn btn-ghost btn-block mb-s" bindtap="previous">上一题解析</button>
+    <button wx:if="{{practiceReview && hasPrevious}}" class="btn btn-ghost btn-block mb-s uv-press" bindtap="previous" hover-class="uv-press-hover" hover-start-time="0" hover-stay-time="120">上一题解析</button>
     <block wx:if="{{!finished}}">
       <button class="btn btn-yellow btn-block uv-press" disabled="{{submitting || imagesLoading || imageMessage}}" loading="{{submitting}}" bindtap="finish" hover-class="uv-press-hover" hover-start-time="0" hover-stay-time="120">{{practiceReview ? (hasNext ? '确认自评并看下一题' : '完成自评并查看汇总') : (hasNext ? '进入下一轨' : (scene === 'practice' ? '发送本轨信号' : '完成自评'))}}</button>
       <button class="btn btn-ghost btn-block mt-s uv-press" bindtap="openCorrection" hover-class="uv-press-hover" hover-start-time="0" hover-stay-time="120">星图校准</button>
@@ -162,10 +162,9 @@
       </view>
 
       <view class="type-label">问题类型</view>
-      <view class="corr-radios mb">
+      <view class="uv-opt-chips mb">
         <view wx:for="{{correctionTypes}}" wx:key="*this" data-type="{{item}}" bindtap="pickCorrection"
-          class="corr-radio {{correctionType === item ? 'is-on' : ''}} uv-taprow" hover-class="uv-taprow-hover" hover-start-time="0" hover-stay-time="80" >
-          <view class="corr-dot"></view>
+          class="uv-opt-chip {{correctionType === item ? 'is-on' : ''}}" hover-class="uv-opt-chip-hover" hover-start-time="0" hover-stay-time="80">
           <text>{{item}}</text>
         </view>
       </view>

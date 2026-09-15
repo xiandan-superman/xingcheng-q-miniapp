@@ -67,8 +67,6 @@
 .ps-stem { flex: 1; font-size: 24rpx; font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
 .type-label { font-size: 24rpx; font-weight: 800; margin-bottom: 12rpx; color: var(--ink); }
-.type-chip { padding: 12rpx 22rpx; }
-.type-chip.chip-on { background: var(--yellow); box-shadow: 2rpx 3rpx 0 rgba(23,25,31,.85); transform: translateY(-2rpx); }
 .corr-preview {
   margin-top: 16rpx; width: 100%; max-height: 280rpx;
   border: 3rpx solid var(--ink); border-radius: 16rpx; background: var(--card);
@@ -91,21 +89,6 @@
 .corr-q-label { font-size: 22rpx; color: var(--muted); margin-bottom: 6rpx; }
 .corr-q-meta { font-size: 26rpx; font-weight: 800; margin-bottom: 6rpx; }
 .corr-q-stem { font-size: 24rpx; color: var(--ink); line-height: 1.5; }
-.corr-radios { display: flex; flex-direction: column; gap: 12rpx; }
-.corr-radio {
-  display: flex; flex-direction: row; align-items: center; gap: 16rpx;
-  padding: 18rpx 20rpx; border-radius: 16rpx;
-  border: 3rpx solid var(--ink); background: var(--card);
-  font-size: 28rpx; font-weight: 700;
-}
-.corr-radio.is-on { background: var(--yellow); box-shadow: 3rpx 4rpx 0 rgba(23,25,31,.85); }
-.corr-dot {
-  width: 28rpx; height: 28rpx; border-radius: 50%; flex: none;
-  border: 3rpx solid var(--ink); background: var(--card); position: relative;
-}
-.corr-radio.is-on .corr-dot::after {
-  content: ''; position: absolute; top: 5rpx; right: 5rpx; bottom: 5rpx; left: 5rpx; border-radius: 50%; background: var(--ink);
-}
 .corr-img-box {
   border: 3rpx dashed var(--ink); border-radius: 16rpx;
   padding: 28rpx 20rpx; text-align: center; opacity: .85; background: rgba(255,255,255,.6);

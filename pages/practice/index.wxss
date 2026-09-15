@@ -6,49 +6,10 @@
 .p-hero-copy .page-sub { margin-top:10rpx; font-size:23rpx; line-height:1.55; }
 .p-hero-q { flex:none; width:272rpx; height:272rpx; margin:-12rpx -36rpx -30rpx -22rpx; transform:translateY(28rpx); display:flex; flex-direction:row; align-items:center; justify-content:center; background:transparent; }
 
-/* 知识点 chips */
+/* 知识点标签 */
 .chips { margin-top: 4rpx; }
 .chips-shake { animation: chip-shake .28s ease; }
 @keyframes chip-shake { 0%,100% { transform: translateX(0); } 25% { transform: translateX(-8rpx); } 75% { transform: translateX(8rpx); } }
-
-.kp-chip {
-  position: relative;
-  display: inline-flex;
-  align-items: center;
-  padding: 18rpx 40rpx 18rpx 26rpx;
-  background: var(--card);
-  border: 3rpx solid var(--ink);
-  border-radius: 18rpx;
-  box-shadow: 3rpx 4rpx 0 rgba(23,25,31,.85);
-  font-size: 26rpx;
-  font-weight: 700;
-  transition: transform .12s ease, background .15s ease;
-}
-.kp-chip.kp-on { background: var(--yellow); transform: translateY(-2rpx); }
-.kp-name { line-height: 1.2; }
-.kp-rec {
-  position: absolute;
-  top: -16rpx; right: -8rpx;
-  background: var(--orange);
-  color: var(--card);
-  font-size: 17rpx;
-  font-weight: 800;
-  border: 2rpx solid var(--ink);
-  border-radius: 8rpx;
-  padding: 2rpx 10rpx;
-  transform: rotate(4deg);
-}
-.kp-check {
-  position: absolute;
-  top: -14rpx; right: -14rpx;
-  width: 36rpx; height: 36rpx;
-  background: var(--green);
-  border: 3rpx solid var(--ink);
-  border-radius: 50%;
-  font-size: 22rpx;
-  font-weight: 900;
-  display: flex; flex-direction: row; align-items: center; justify-content: center;
-}
 
 .select-tip {
   font-size: 24rpx;
@@ -86,5 +47,3 @@
 .resume-title { font-size:30rpx; font-weight:900; }
 .resume-card .flow-hint { margin-top:8rpx; }
 .system-error { display:flex; flex-direction:column; align-items:center; text-align:center; }
-.kp-chip { transition:background-color .18s ease,border-color .18s ease; }
-.reduce-motion .kp-chip { transition:none; }

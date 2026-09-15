@@ -143,10 +143,9 @@
       </view>
 
       <view class="type-label">问题类型</view>
-      <view class="corr-radios mb">
+      <view class="uv-opt-chips mb">
         <view wx:for="{{correctionTypes}}" wx:key="*this" data-type="{{item}}" bindtap="pickCorrection"
-          class="corr-radio {{correctionType === item ? 'is-on' : ''}} uv-taprow" hover-class="uv-taprow-hover" hover-start-time="0" hover-stay-time="80" >
-          <view class="corr-dot"></view>
+          class="uv-opt-chip {{correctionType === item ? 'is-on' : ''}}" hover-class="uv-opt-chip-hover" hover-start-time="0" hover-stay-time="80">
           <text>{{item}}</text>
         </view>
       </view>

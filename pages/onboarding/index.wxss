@@ -37,17 +37,9 @@
 .launch-arrow { flex:1; min-width:18rpx; overflow:hidden; color:rgba(23,25,31,.32); font-size:18rpx; letter-spacing:1rpx; white-space:nowrap; }
 
 /* 学科卡 */
-.subject-card {
-  display: flex; flex-direction: row;
-  align-items: center;
-  gap: 20rpx;
-  padding: 28rpx 26rpx;
-  margin-bottom: 24rpx;
-}
-.subject-card.subject-on {
-  background: var(--cream);
-  box-shadow: 6rpx 8rpx 0 rgba(240,200,80,.4);
-}
+.uv-pick-card { display:flex; flex-direction:row; align-items:center; gap:20rpx; margin-bottom:24rpx; }
+.uv-pick-card.is-on.card-tilt-l { transform: translate(3rpx, 3rpx) rotate(-.8deg); }
+.uv-pick-card.is-on.card-tilt-r { transform: translate(3rpx, 3rpx) rotate(.8deg); }
 .subject-icon {
   width: 88rpx; height: 88rpx; flex: none;
   border-radius: 20rpx;
@@ -62,15 +54,6 @@
   font-size: 34rpx;
   margin-bottom: 4rpx;
 }
-.subject-check {
-  width: 48rpx; height: 48rpx; flex: none;
-  border-radius: 50%;
-  border: 3rpx solid var(--ink);
-  background: var(--card);
-  display: flex; flex-direction: row; align-items: center; justify-content: center;
-  font-size: 28rpx; font-weight: 900;
-}
-.subject-check.checked { background: var(--green); }
 .select-count { font-size: 23rpx; text-align: center; }
 
 /* 协议卡 */
@@ -86,16 +69,7 @@
   padding: 10rpx 4rpx 20rpx;
   align-items: flex-start;
 }
-.agree-box {
-  width: 44rpx; height: 44rpx; flex: none;
-  border: 3rpx solid var(--ink);
-  border-radius: 10rpx;
-  background: var(--card);
-  display: flex; flex-direction: row; align-items: center; justify-content: center;
-  font-size: 28rpx; font-weight: 900;
-  margin-top: 2rpx;
-}
-.agree-box.checked { background: var(--yellow); }
+.agree-row .uv-check-lite { margin-top: 2rpx; }
 .agree-copy { font-size: 25rpx; line-height: 1.5; flex: 1; }
 
 

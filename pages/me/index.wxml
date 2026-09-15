@@ -73,13 +73,16 @@
   <!-- 设置菜单 -->
   <view class="menu card mt">
     <view class="switch-row">
-      <view class="row gap-s">
+      <view class="row gap-s reminder-copy">
         <image src="/assets/icons/ic-reminder.png" mode="aspectFit" style="width:38rpx;height:38rpx"/>
-        <view>
+        <view class="flex1">
           <view class="menu-label">星能提醒</view>
-          <picker mode="time" value="{{reminderTime}}" bindchange="changeReminder">
-            <view class="time-picker">每天 {{reminderTime}} · 点击修改</view>
-          </picker>
+          <view class="time-slots row wrap gap-s">
+            <view wx:for="{{timeSlots}}" wx:key="*this" data-t="{{item}}" bindtap="setReminderTime"
+              class="time-slot {{reminderTime === item ? 'slot-on' : ''}} uv-taprow"
+              hover-class="uv-taprow-hover" hover-start-time="0" hover-stay-time="80">{{item}}</view>
+          </view>
+          <view class="time-picker">每天 {{reminderTime}} · 点击档位修改</view>
         </view>
       </view>
       <view class="uv-toggle {{remind ? 'is-on' : ''}}" hover-class="uv-toggle-hover" hover-start-time="0" hover-stay-time="120" bindtap="toggleRemind"><view class="uv-toggle-knob"></view></view>
@@ -97,11 +100,6 @@
     <view class="menu-item uv-taprow" data-title="星航隐私条款" bindtap="showPolicy" hover-class="uv-taprow-hover" hover-start-time="0" hover-stay-time="80" ><text>星航隐私条款</text><text class="menu-tail">查看全文 ›</text></view>
     <view class="menu-item uv-taprow" data-title="星航用户协议" bindtap="showPolicy" hover-class="uv-taprow-hover" hover-start-time="0" hover-stay-time="80" ><text>星航用户协议</text><text class="menu-tail">查看全文 ›</text></view>
     <view class="menu-item danger uv-taprow" bindtap="deleteAccount" hover-class="uv-taprow-hover" hover-start-time="0" hover-stay-time="80" ><text>注销星籍</text><text class="menu-tail">申请注销 ›</text></view>
-  </view>
-
-  <view wx:if="{{reminderSuccess}}" class="reminder-success card card-data">
-    <xingcheng-q-scene scene="reminder" motion="{{reduceMotion ? 'still' : 'auto'}}" size="168"/>
-    <view><view class="reminder-success-title">星能提醒已停靠</view><view class="text-secondary">每天 {{reminderTime}} 提醒你点亮星题</view></view>
   </view>
 
   <!-- 校准记录：半屏贴底，空态矮，避开自定义 tabBar -->
@@ -143,4 +141,10 @@
       <button class="btn btn-yellow btn-block mt-s uv-press" bindtap="closeCorrections" hover-class="uv-press-hover" hover-start-time="0" hover-stay-time="120">收起记录</button>
     </view>
   </view>
+</view>
+
+<!-- 固定提示独立于带内边距的页面容器，确保以屏幕为基准居中 -->
+<view wx:if="{{reminderSuccess}}" class="reminder-success card card-data">
+  <view class="reminder-success-q"><xingcheng-q-scene scene="reminder" motion="{{reduceMotion ? 'still' : 'auto'}}" size="116"/></view>
+  <view class="reminder-success-copy"><view class="reminder-success-title">星能提醒已停靠</view><view class="reminder-success-sub">每天 {{reminderTime}} 提醒你点亮星题</view></view>
 </view>

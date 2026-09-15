@@ -90,5 +90,5 @@
     <button class="btn btn-orange mt uv-press" bindtap="goPractice" hover-class="uv-press-hover" hover-start-time="0" hover-stay-time="120">去训练舱看看</button>
   </view>
   <view wx:if="{{items.length}}" class="text-secondary mt" style="text-align:center">已显示 {{items.length}} / {{totalCount}} 道错题</view>
-  <button wx:if="{{hasMore}}" class="btn btn-ghost mt load-more" bindtap="onReachBottom">加载更多错题</button>
+  <button wx:if="{{hasMore}}" class="btn btn-ghost mt load-more uv-press" bindtap="onReachBottom" hover-class="uv-press-hover" hover-start-time="0" hover-stay-time="120">加载更多错题</button>
 </view>

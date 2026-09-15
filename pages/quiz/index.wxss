@@ -117,18 +117,7 @@
 .sq-ph { color: var(--muted); font-size: 25rpx; }
 
 /* 纠错弹层 */
-.locate-card { padding: 20rpx 24rpx; }
-.locate-text { font-size: 27rpx; font-weight: 800; margin: 4rpx 0; }
 .type-label { font-size: 26rpx; font-weight: 800; margin-bottom: 14rpx; }
-.type-chip { padding: 12rpx 26rpx; font-size: 24rpx; }
-.type-chip.chip-on { background: var(--yellow); box-shadow: 2rpx 3rpx 0 rgba(23,25,31,.85); transform: translateY(-2rpx); }
-.attach {
-  border: 3rpx dashed rgba(23,25,31,.3);
-  border-radius: 16rpx;
-  padding: 22rpx;
-  justify-content: center;
-}
-.attach-plus { font-size: 34rpx; color: var(--muted); }
 
 /* 错题来源标识 */
 .wrong-source {
@@ -168,48 +157,7 @@
 
 /* 选择题选项 */
 .options { display: flex; flex-direction: column; gap: 18rpx; }
-.option {
-  display: flex; flex-direction: row;
-  align-items: center;
-  gap: 18rpx;
-  padding: 24rpx 22rpx;
-  background: var(--card);
-}
-.opt-key {
-  width: 56rpx; height: 56rpx; flex: none;
-  border-radius: 14rpx;
-  border: 3rpx solid var(--ink);
-  background: var(--paper);
-  display: flex; flex-direction: row; align-items: center; justify-content: center;
-  font-size: 28rpx; font-weight: 900;
-}
-.opt-text { flex: 1; font-size: 27rpx; line-height: 1.5; font-weight: 600; }
-.opt-check {
-  width: 44rpx; height: 44rpx; flex: none;
-  border-radius: 50%;
-  background: var(--green);
-  border: 3rpx solid var(--ink);
-  display: flex; flex-direction: row; align-items: center; justify-content: center;
-  font-size: 26rpx; font-weight: 900;
-}
-.option.opt-picked {
-  background: var(--cream);
-  box-shadow: 6rpx 8rpx 0 rgba(240,200,80,.4);
-}
-.option.opt-picked .opt-key { background: var(--yellow); }
 .multi-tip { font-size: 21rpx; text-align: center; margin-top: 6rpx; }
-
-/* 结算/解析（题组） */
-.result-sum { padding: 40rpx 30rpx; text-align: center; margin-top: 40rpx; }
-.rs-q { display: flex; flex-direction: row; justify-content: center; margin-bottom: 10rpx; }
-.rs-score { margin: 16rpx 0 4rpx; }
-.rs-num { font-family: "ZCOOL KuaiLe Local", sans-serif; font-size: 96rpx; color: var(--orange); line-height: 1; }
-.rs-total { font-size: 34rpx; color: var(--muted); }
-.rs-label { font-size: 24rpx; color: var(--muted); margin-bottom: 30rpx; }
-.parse-show { padding: 22rpx 24rpx; }
-.pb-copy { font-size: 21rpx; margin: 8rpx 4rpx 0; }
-.progress-bar { height: 14rpx; border-radius: 99rpx; background: rgba(23,25,31,.1); overflow: hidden; margin-top: 10rpx; }
-.pb-fill { height: 100%; background: var(--orange); border-radius: 99rpx; transition: width .4s; }
 
 
 /* 纠错弹层 SCREEN9 */
@@ -220,21 +168,6 @@
 .corr-q-label { font-size: 22rpx; color: var(--muted); margin-bottom: 6rpx; }
 .corr-q-meta { font-size: 26rpx; font-weight: 800; margin-bottom: 6rpx; }
 .corr-q-stem { font-size: 24rpx; color: var(--ink); line-height: 1.5; }
-.corr-radios { display: flex; flex-direction: column; gap: 12rpx; }
-.corr-radio {
-  display: flex; flex-direction: row; align-items: center; gap: 16rpx;
-  padding: 18rpx 20rpx; border-radius: 16rpx;
-  border: 3rpx solid var(--ink); background: var(--card);
-  font-size: 28rpx; font-weight: 700;
-}
-.corr-radio.is-on { background: var(--yellow); box-shadow: 3rpx 4rpx 0 rgba(23,25,31,.85); }
-.corr-dot {
-  width: 28rpx; height: 28rpx; border-radius: 50%; flex: none;
-  border: 3rpx solid var(--ink); background: var(--card); position: relative;
-}
-.corr-radio.is-on .corr-dot::after {
-  content: ''; position: absolute; top: 5rpx; right: 5rpx; bottom: 5rpx; left: 5rpx; border-radius: 50%; background: var(--ink);
-}
 .corr-img-box {
   border: 3rpx dashed var(--ink); border-radius: 16rpx;
   padding: 28rpx 20rpx; text-align: center; opacity: .85; background: rgba(255,255,255,.6);

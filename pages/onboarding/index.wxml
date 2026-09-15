@@ -18,7 +18,7 @@
     <view class="welcome-core">
       <view class="welcome-kicker"><text class="welcome-kicker-star">✦</text> ORBIT RETURN · 星轨重连完成</view>
       <view class="welcome-q">
-        <xingcheng-q-entry scene="welcome-back" motion="{{reduceMotion ? 'still' : 'auto'}}" size="430"/>
+        <xingcheng-q-entry id="welcomeEntry" scene="welcome-back" motion="{{reduceMotion ? 'still' : 'auto'}}" size="430"/>
       </view>
       <view class="welcome-title">欢迎<text class="h-orange">回归</text><text class="welcome-spark">✦</text></view>
       <view class="welcome-sub">星题舱已就绪，今天也来充一格星能。</view>
@@ -77,13 +77,13 @@
     </view>
 
     <view wx:for="{{subjects}}" wx:key="name" data-name="{{item.name}}" bindtap="toggleSubject"
-      class="subject-card card {{item.selected ? 'subject-on' : ''}} card-tilt-{{index === 0 ? 'l' : 'r'}} uv-taprow" hover-class="uv-taprow-hover" hover-start-time="0" hover-stay-time="80" >
+      class="uv-pick-card {{item.selected ? 'is-on' : ''}} card-tilt-{{index === 0 ? 'l' : 'r'}} uv-taprow" hover-class="uv-taprow-hover" hover-start-time="0" hover-stay-time="80" >
       <view class="subject-icon {{item.theme}}">{{item.short}}</view>
       <view class="flex1">
         <view class="subject-name">{{item.name}}</view>
         <view class="muted" style="font-size:22rpx">{{item.detail}}</view>
       </view>
-      <view class="subject-check {{item.selected ? 'checked' : ''}}">{{item.selected ? '✓' : ''}}</view>
+      <view class="uv-pick-mark"></view>
     </view>
 
     <view class="select-count muted mt">已选 {{selectedCount}} 个领域{{selectedCount ? '，可以启航了' : '，至少选择 1 个'}}</view>
@@ -117,7 +117,7 @@
     </view>
 
     <view class="agree-row row gap-s uv-taprow" bindtap="toggleAgree" hover-class="uv-taprow-hover" hover-start-time="0" hover-stay-time="80" >
-      <view class="agree-box {{agreed ? 'checked' : ''}}">{{agreed ? '✓' : ''}}</view>
+      <view class="uv-check-lite {{agreed ? 'is-on' : ''}}"><view class="uv-check-lite-mark"></view></view>
       <text class="agree-copy">我已阅读并同意《星航隐私条款》与《星航用户协议》</text>
     </view>
     <button class="btn btn-yellow btn-block mt-l {{!agreed ? 'is-disabled' : ''}} uv-press" loading="{{launching}}" disabled="{{launching}}" bindtap="launch" hover-class="uv-press-hover" hover-start-time="0" hover-stay-time="120">同意并启航</button>

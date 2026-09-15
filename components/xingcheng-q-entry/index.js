@@ -75,6 +75,7 @@ function makeScene(name) {
     ? { x:-150,y:266,eyeOpenL:1,eyeOpenR:1,portalX:112,portalY:266 }
     : { x:448,y:64,scaleX:.14,scaleY:.14,eyeX:0,eyeY:0,pebble:.08,handAlpha:0,alpha:1,galaxyAlpha:.12,shipAlpha:.15 })
   if (first) return { initial:s, tracks:compile(s,FIRST_TWEENS), duration:11.3, startAt:.24 }
+  s.renderLite = 1
   const continuation = WELCOME_TWEENS.filter((item)=>item[0]>=1.35).map((item)=>[item[0]+RETURN_ARRIVAL_DURATION-1.35,item[1],item[2],item[3]])
   return { initial:s, tracks:compile(s,RETURN_ARRIVAL.concat(continuation)), duration:RETURN_ARRIVAL_DURATION+10.4-1.35, startAt:0 }
 }
@@ -96,7 +97,8 @@ Component({
       this.createSelectorQuery().select('#qCanvas').fields({node:true,size:true}).exec((res) => {
         try {
           const item = res && res[0]; if (!item || !item.node) { this.fail(); return }
-          const dpr = Math.min(2, wx.getWindowInfo ? wx.getWindowInfo().pixelRatio : wx.getSystemInfoSync().pixelRatio)
+          const deviceDpr = Number(wx.getWindowInfo ? wx.getWindowInfo().pixelRatio : wx.getSystemInfoSync().pixelRatio) || 1
+          const dpr = Math.min(this.properties.scene === 'welcome-back' ? 1.5 : 2, deviceDpr)
           this._canvas = item.node; this._ctx = item.node.getContext('2d'); if (!this._ctx) { this.fail(); return }
           item.node.width = Math.max(1, Math.round(item.width * dpr)); item.node.height = Math.max(1, Math.round(item.height * dpr))
           this._ctx.setTransform(item.node.width / 512,0,0,item.node.height / 512,0,0)

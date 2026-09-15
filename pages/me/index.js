@@ -2,6 +2,8 @@ const api = require('../../services/student')
 const view = require('../../services/presentation')
 const { syncWrongDot } = require('../../utils/tab-badge')
 const correctionDraft = require('../../services/correction-draft')
+const REMINDER_TIME_SLOTS = ['07:00', '10:00', '18:00', '22:00']
+const normalizeReminderTime = (value) => REMINDER_TIME_SLOTS.includes(value) ? value : '10:00'
 Page({
   data: {
     topPad: 80,
@@ -9,6 +11,7 @@ Page({
     reduceMotion: false,
     remind: false,
     reminderTime: '20:30',
+    timeSlots: REMINDER_TIME_SLOTS,
     reminderSuccess: false,
     showCorrections: false,
     correctionsList: [],
@@ -43,7 +46,7 @@ Page({
       nickname: wx.getStorageSync('xingchengq:nickname') || '星橙学生',
       reduceMotion: Boolean(wx.getStorageSync('xingchengq:reduceMotion')),
       remind: (wx.getStorageSync('xingchengq:remind') !== false),
-      reminderTime: wx.getStorageSync('xingchengq:reminderTime') || '20:30',
+      reminderTime: normalizeReminderTime(wx.getStorageSync('xingchengq:reminderTime')),
       correctionsList: wx.getStorageSync('xingchengq:corrections') || [],
       qState: getApp().globalData.reduceMotion ? 'rest' : 'today-curious',
       qMotion: getApp().globalData.reduceMotion ? 'still' : 'auto',
@@ -71,7 +74,12 @@ Page({
         if (t && t.submitCount) return Math.round(t.correctCount * 100 / t.submitCount)
         return null
       })
-      this.setData({ nickname: profile.user.nickname, remind: profile.user.subscribeOk, reminderTime: profile.user.reminderHm,
+      const reminderTime = normalizeReminderTime(profile.user.reminderHm)
+      if (reminderTime !== profile.user.reminderHm) {
+        wx.setStorageSync('xingchengq:reminderTime', reminderTime)
+        api.setProfile({ reminderHm: reminderTime }).catch(() => {})
+      }
+      this.setData({ nickname: profile.user.nickname, remind: profile.user.subscribeOk, reminderTime,
         subjectText: (profile.user.selectedSubjectIds || []).map(x => view.subjects[x] || x).join(' / '),
         accuracy: week.accuracy, message: '',
         metrics: [{ num: all.total, label: '累计答题' }, { num: all.accuracy + '%', label: '星轨稳定度' }, { num: (all.durationMs / 3600000).toFixed(1) + 'h', label: '跃迁时长' }, { num: checkins.streak, label: '连续星能' }, { num: checkins.total, label: '累计打卡' }],
@@ -255,13 +263,19 @@ Page({
     finally { this._remindSaving = false }
   },
 
-  async changeReminder(e) {
+  async setReminderTime(e) {
+    if (this._reminderTimeSaving) return
+    const reminderTime = e.currentTarget.dataset.t
+    if (!this.data.timeSlots.includes(reminderTime) || reminderTime === this.data.reminderTime) return
+    this._reminderTimeSaving = true
     try {
-      await api.setProfile({ reminderHm: e.detail.value })
-      this.setData({ reminderTime: e.detail.value, reminderSuccess: true })
+      await api.setProfile({ reminderHm: reminderTime })
+      wx.setStorageSync('xingchengq:reminderTime', reminderTime)
+      this.setData({ reminderTime, reminderSuccess: true })
       clearTimeout(this._reminderSuccessTimer)
       this._reminderSuccessTimer = setTimeout(() => { if (!this._unloaded) this.setData({ reminderSuccess: false }) }, 6600)
     } catch (e) { view.error(e) }
+    finally { this._reminderTimeSaving = false }
   },
 
   goReport() { wx.navigateTo({ url: '/pages/report/index' }) },

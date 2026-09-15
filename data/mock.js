@@ -67,8 +67,8 @@ const choiceQuestions = [
 ]
 
 const weakPoints = [
-  { id: 'kp1', name: 'Fe-Fe₃C 相图', score: 68, recommended: true },
-  { id: 'kp2', name: '恒温转变', score: 65, recommended: true },
+  { id: 'kp1', name: 'Fe-Fe₃C 相图', score: 68 },
+  { id: 'kp2', name: '恒温转变', score: 65 },
   { id: 'kp3', name: '冷却组织分析', score: 70 },
   { id: 'kp4', name: '二元合金相图', score: 74 },
   { id: 'kp5', name: '扩散与固态相变', score: 78 }

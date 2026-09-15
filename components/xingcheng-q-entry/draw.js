@@ -59,8 +59,9 @@
 
   function bodyPath(ctx, s) {
     ctx.beginPath();
-    for (let i = 0; i <= 112; i += 1) {
-      const a = i / 112 * TAU;
+    const steps = s.renderLite ? 72 : 112;
+    for (let i = 0; i <= steps; i += 1) {
+      const a = i / steps * TAU;
       const delta = Math.atan2(Math.sin(a - s.shapeAngle), Math.cos(a - s.shapeAngle));
       const drop = Math.exp(-(delta * delta) / 0.13) * s.drop * 0.48;
       const pebble = s.pebble * (0.055 * Math.cos(a * 2 + 0.5) + 0.028 * Math.cos(a * 3 + 2.1));
@@ -142,9 +143,10 @@
     ];
     bands.forEach((b, bi) => {
       const head = s.ribbonRotation * Math.PI / 180 * (bi ? -0.82 : 1) + b.phase;
-      for (let i = 0; i < 34; i += 1) {
-        const u0 = i / 34;
-        const u1 = (i + 1) / 34;
+      const segments = s.renderLite ? 20 : 34;
+      for (let i = 0; i < segments; i += 1) {
+        const u0 = i / segments;
+        const u1 = (i + 1) / segments;
         const point = (u) => {
           const a = head - 1.7 + 1.7 * u;
           const ex = Math.cos(a) * b.rx;
@@ -157,7 +159,7 @@
         ctx.globalAlpha = s.ribbonAlpha * (0.08 + 0.92 * strength);
         ctx.strokeStyle = b.color;
         ctx.shadowColor = b.color;
-        ctx.shadowBlur = 7;
+        ctx.shadowBlur = s.renderLite ? 3 : 7;
         ctx.lineWidth = 1.5 + b.width * strength;
         ctx.beginPath();
         ctx.moveTo(p0.x, p0.y);
@@ -197,7 +199,7 @@
       const tg = ctx.createLinearGradient(-34,22,-tail,22);
       tg.addColorStop(0,'rgba(255,200,87,.95)'); tg.addColorStop(.48,'rgba(240,68,36,.72)'); tg.addColorStop(1,'rgba(53,199,216,0)');
       ctx.strokeStyle=tg;ctx.lineWidth=18;ctx.lineCap='round';ctx.beginPath();ctx.moveTo(-42,22);ctx.lineTo(-tail,22);ctx.stroke();
-      ctx.fillStyle='#35C7D8';ctx.shadowColor='#35C7D8';ctx.shadowBlur=14;ctx.beginPath();ctx.ellipse(0,20,112,39,0,0,TAU);ctx.fill();ctx.shadowBlur=0;
+      ctx.fillStyle='#35C7D8';ctx.shadowColor='#35C7D8';ctx.shadowBlur=s.renderLite?7:14;ctx.beginPath();ctx.ellipse(0,20,112,39,0,0,TAU);ctx.fill();ctx.shadowBlur=0;
       ctx.fillStyle='#FFC857';ctx.beginPath();ctx.moveTo(-70,23);ctx.lineTo(-102,62);ctx.lineTo(-30,43);ctx.closePath();ctx.fill();
       ctx.beginPath();ctx.moveTo(67,22);ctx.lineTo(103,59);ctx.lineTo(31,42);ctx.closePath();ctx.fill();
       const glass=ctx.createLinearGradient(0,-72,0,21);glass.addColorStop(0,'rgba(255,248,238,.94)');glass.addColorStop(.42,'rgba(53,199,216,.64)');glass.addColorStop(1,'rgba(17,138,155,.85)');
@@ -236,7 +238,7 @@
     bg.addColorStop(1, '#EF4828');
     ctx.fillStyle = bg;
     ctx.shadowColor = 'rgba(240,68,36,.22)';
-    ctx.shadowBlur = 19;
+    ctx.shadowBlur = s.renderLite ? 10 : 19;
     bodyPath(ctx, s);
     ctx.fill();
     ctx.shadowBlur = 0;

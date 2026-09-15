@@ -83,7 +83,7 @@ Page({
         }
       }
       this.setData({
-        weakPoints: data.items.map(x => ({ ...x, id: x._id, selected: false, recommended: x.weakness > 0 })),
+        weakPoints: data.items.map(x => ({ id: x._id, name: x.name, selected: false })),
         selectedCount: 0,
         canSelectMore: true,
         message: empty ? '知识点题库补给中，发布后即可训练' : '',

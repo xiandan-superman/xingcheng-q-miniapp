@@ -17,7 +17,7 @@
     </view>
   </view>
   <!-- 标题区 -->
-  <view class="hero {{!loading && !message && !completed && !showMakeup ? 'hero-with-q' : 'hero-compact'}}">
+  <view class="hero {{!completed && !showMakeup && !message ? 'hero-with-q' : 'hero-compact'}}">
     <view class="streak-row"><view class="sticker streak-sticker">连续星能 {{streak}} 天 ✦</view></view>
     <view class="hero-copy">
       <view class="hero-title" wx:if="{{!completed}}">
@@ -35,14 +35,14 @@
         <view class="hero-mission-sub">点亮一格星能</view>
       </view>
     </view>
-    <view wx:if="{{!loading && !message && !completed && !showMakeup}}" class="home-theater">
-      <xingcheng-q-home motion="{{reduceMotion ? 'still' : 'auto'}}" size="360"/>
+    <view wx:if="{{!completed && !showMakeup && !message}}" class="home-theater">
+      <xingcheng-q-home motion="{{reduceMotion ? 'still' : 'auto'}}" size="330"/>
     </view>
   </view>
 
   <!-- 今日星题卡 -->
   <view wx:if="{{loading}}" class="card mt load-inline">
-    <xingcheng-q-scene scene="loading" motion="{{reduceMotion ? 'still' : 'auto'}}" size="220"/>
+    <view class="load-orbit" aria-hidden="true"><view class="load-orbit-core"></view></view>
     <view class="load-txt">正在读取今日星题…</view>
   </view>
   <view wx:elif="{{message}}" class="card mt system-card">
@@ -137,7 +137,7 @@
         </view>
         <button class="btn btn-orange btn-block mt uv-press" disabled="{{tickets <= 0 || !selectedKey}}" bindtap="confirmMakeup" hover-class="uv-press-hover" hover-start-time="0" hover-stay-time="120">{{tickets <= 0 ? '暂无补能券' : '确认补签'}}</button>
       </view>
-      <button wx:else class="btn btn-orange btn-block mt uv-press" bindtap="closeMakeup">完成</button>
+      <button wx:else class="btn btn-orange btn-block mt uv-press" bindtap="closeMakeup" hover-class="uv-press-hover" hover-start-time="0" hover-stay-time="120">完成</button>
     </view>
   </view>
 </view>
