@@ -3,7 +3,7 @@ const view = require('../../services/presentation')
 const { syncWrongDot } = require('../../utils/tab-badge')
 const correctionDraft = require('../../services/correction-draft')
 const REMINDER_TIME_SLOTS = ['07:00', '10:00', '18:00', '22:00']
-const normalizeReminderTime = (value) => REMINDER_TIME_SLOTS.includes(value) ? value : '10:00'
+const normalizeReminderTime = (value) => value || '20:30'
 Page({
   data: {
     topPad: 80,
@@ -14,6 +14,8 @@ Page({
     timeSlots: REMINDER_TIME_SLOTS,
     reminderSuccess: false,
     showCorrections: false,
+    correctionsOffset: 0,
+    correctionsTracking: false,
     correctionsList: [],
     correctionsLoading: false,
     correctionsHasMore: false,
@@ -74,11 +76,7 @@ Page({
         if (t && t.submitCount) return Math.round(t.correctCount * 100 / t.submitCount)
         return null
       })
-      const reminderTime = normalizeReminderTime(profile.user.reminderHm)
-      if (reminderTime !== profile.user.reminderHm) {
-        wx.setStorageSync('xingchengq:reminderTime', reminderTime)
-        api.setProfile({ reminderHm: reminderTime }).catch(() => {})
-      }
+      const reminderTime = profile.user.reminderHm || '20:30'
       this.setData({ nickname: profile.user.nickname, remind: profile.user.subscribeOk, reminderTime,
         subjectText: (profile.user.selectedSubjectIds || []).map(x => view.subjects[x] || x).join(' / '),
         accuracy: week.accuracy, message: '',
@@ -288,7 +286,7 @@ Page({
   },
   async openCorrections() {
     if (this.data.correctionsLoading) return
-    this.setData({ showCorrections: true, correctionsList: [], correctionsHasMore: false, correctionsPage: 0 })
+    this.setData({ showCorrections: true, correctionsOffset: 0, correctionsTracking: false, correctionsList: [], correctionsHasMore: false, correctionsPage: 0 })
     this.setTabBarHidden(true)
     await this.loadCorrections(true)
   },
@@ -305,7 +303,7 @@ Page({
       this.setData({ correctionsList: merged, correctionsPage: page, correctionsHasMore: Boolean(result.hasMore) })
     } catch (e) {
       if (reset) {
-        this.setData({ showCorrections: false })
+        this.setData({ showCorrections: false, correctionsOffset: 0, correctionsTracking: false })
         this.setTabBarHidden(false)
       }
       view.error(e)
@@ -314,7 +312,33 @@ Page({
     }
   },
   loadMoreCorrections() { return this.loadCorrections(false) },
-  closeCorrections() { this.setData({ showCorrections: false }); this.setTabBarHidden(false) },
+  closeCorrections() {
+    this._correctionsStartY = null
+    this._correctionsLastMoveAt = 0
+    this.setData({ showCorrections: false, correctionsOffset: 0, correctionsTracking: false })
+    this.setTabBarHidden(false)
+  },
+  onCorrectionsGripStart(e) {
+    const touch = e.touches && e.touches[0]
+    this._correctionsStartY = touch ? touch.clientY : null
+    this.setData({ correctionsTracking: true })
+  },
+  onCorrectionsGripMove(e) {
+    if (this._correctionsStartY == null) return
+    const touch = e.touches && e.touches[0]
+    if (!touch) return
+    const now = Date.now()
+    if (this._correctionsLastMoveAt && now - this._correctionsLastMoveAt < 16) return
+    this._correctionsLastMoveAt = now
+    this.setData({ correctionsOffset: Math.max(0, touch.clientY - this._correctionsStartY) })
+  },
+  onCorrectionsGripEnd() {
+    const dy = this.data.correctionsOffset
+    this._correctionsStartY = null
+    this._correctionsLastMoveAt = 0
+    if (dy > 110) return this.closeCorrections()
+    this.setData({ correctionsTracking: false, correctionsOffset: 0 })
+  },
   noop() {},
 
   showPolicy(e) {

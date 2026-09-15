@@ -1,6 +1,6 @@
 <view class="tab-shell {{reduceMotion ? 'reduce-motion' : ''}}" hidden="{{hidden}}">
   <view class="tab-bar">
-    <view wx:for="{{list}}" wx:key="pagePath" class="tab-item {{selected === index ? 'is-active' : ''}}" data-index="{{index}}" data-path="{{item.pagePath}}" bindtap="switchTab">
+    <view wx:for="{{list}}" wx:key="pagePath" class="tab-item {{selected === index ? 'is-active' : ''}}" data-index="{{index}}" data-path="{{item.pagePath}}" bindtap="switchTab" role="tab" aria-label="{{item.text}}" aria-selected="{{selected === index}}">
       <view class="tab-ico-wrap">
         <image class="tab-icon {{popIdx === index ? 'is-pop' : ''}}" src="{{selected === index ? item.iconOn : item.icon}}" mode="aspectFit"/>
         <view wx:if="{{item.dot}}" class="tab-dot"></view>

@@ -55,6 +55,8 @@ Page({
     sourceTitle: '',
     // 纠错
     showCorrection: false,
+    correctionOffset: 0,
+    correctionTracking: false,
     correctionType: '题干有误',
     correctionText: '',
     correctionTypes: ['题干有误', '答案有误', '解析不清', '图片看不清', '其他'],
@@ -488,8 +490,37 @@ Page({
       return false
     }
   },
-  openCorrection() { if (this.raw) this.setData({ showCorrection: true }) },
-  closeCorrection() { if (this.data.sendingCorrection || !this.flushCorrectionDraft()) return; this.setData({ showCorrection: false }) },
+  openCorrection() { if (this.raw) this.setData({ showCorrection: true, correctionOffset: 0, correctionTracking: false }) },
+  closeCorrection() {
+    this._correctionStartY = null
+    this._correctionLastMoveAt = 0
+    if (this.data.sendingCorrection || !this.flushCorrectionDraft()) {
+      this.setData({ correctionOffset: 0, correctionTracking: false })
+      return
+    }
+    this.setData({ showCorrection: false, correctionOffset: 0, correctionTracking: false })
+  },
+  onCorrectionGripStart(e) {
+    const touch = e.touches && e.touches[0]
+    this._correctionStartY = touch ? touch.clientY : null
+    this.setData({ correctionTracking: true })
+  },
+  onCorrectionGripMove(e) {
+    if (this._correctionStartY == null) return
+    const touch = e.touches && e.touches[0]
+    if (!touch) return
+    const now = Date.now()
+    if (this._correctionLastMoveAt && now - this._correctionLastMoveAt < 16) return
+    this._correctionLastMoveAt = now
+    this.setData({ correctionOffset: Math.max(0, touch.clientY - this._correctionStartY) })
+  },
+  onCorrectionGripEnd() {
+    const dy = this.data.correctionOffset
+    this._correctionStartY = null
+    this._correctionLastMoveAt = 0
+    if (dy > 110) return this.closeCorrection()
+    this.setData({ correctionTracking: false, correctionOffset: 0 })
+  },
   pickCorrection(e) { if (this.data.sendingCorrection) return; this.setData({ correctionType: e.currentTarget.dataset.type }); this.scheduleCorrectionDraft() },
   correctionInput(e) { if (this.data.sendingCorrection) return; this.setData({ correctionText: e.detail.value }); this.scheduleCorrectionDraft() },
   noop() {},
@@ -556,7 +587,7 @@ Page({
       const localSaved = this.data.correctionLocalSaved
       correctionDraft.clear(draft.questionId)
       this.correctionRequest = null
-      this.setData({ showCorrection: false, correctionText: '', correctionLocalPath: '', correctionLocalSaved: false, correctionFileId: '', correctionSuccess: true })
+      this.setData({ showCorrection: false, correctionOffset: 0, correctionTracking: false, correctionText: '', correctionLocalPath: '', correctionLocalSaved: false, correctionFileId: '', correctionSuccess: true })
       clearTimeout(this._correctionSuccessTimer)
       this._correctionSuccessTimer = setTimeout(() => { if (!this._unloaded) this.setData({ correctionSuccess: false }) }, 6400)
       this.removeSavedCorrectionFile(savedPath, localSaved)

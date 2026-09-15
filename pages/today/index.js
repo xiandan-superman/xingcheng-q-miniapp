@@ -21,6 +21,8 @@ Page({
     days: [],
     makeupDays: [],
     showMakeup: false,
+    makeupOffset: 0,
+    makeupTracking: false,
     makeupSuccess: false,
     selectedKey: '',
     loading: true,
@@ -251,13 +253,36 @@ Page({
   setTabBarHidden(hidden) { const tab = this.getTabBar && this.getTabBar(); if (tab) tab.setData({ hidden }) },
   openMakeup() {
     this.pauseHomeLoop()
-    this.setData({ showMakeup: true, makeupSuccess: false, qMotion: 'still' })
+    this.setData({ showMakeup: true, makeupSuccess: false, makeupOffset: 0, makeupTracking: false, qMotion: 'still' })
     this.setTabBarHidden(true)
   },
   closeMakeup() {
-    this.setData({ showMakeup: false, makeupSuccess: false })
+    this._makeupStartY = null
+    this._makeupLastMoveAt = 0
+    this.setData({ showMakeup: false, makeupSuccess: false, makeupOffset: 0, makeupTracking: false })
     this.setTabBarHidden(false)
     this.resumeHomeLoopIfNeeded()
+  },
+  onMakeupGripStart(e) {
+    const touch = e.touches && e.touches[0]
+    this._makeupStartY = touch ? touch.clientY : null
+    this.setData({ makeupTracking: true })
+  },
+  onMakeupGripMove(e) {
+    if (this._makeupStartY == null) return
+    const touch = e.touches && e.touches[0]
+    if (!touch) return
+    const now = Date.now()
+    if (this._makeupLastMoveAt && now - this._makeupLastMoveAt < 16) return
+    this._makeupLastMoveAt = now
+    this.setData({ makeupOffset: Math.max(0, touch.clientY - this._makeupStartY) })
+  },
+  onMakeupGripEnd() {
+    const dy = this.data.makeupOffset
+    this._makeupStartY = null
+    this._makeupLastMoveAt = 0
+    if (dy > 110) return this.closeMakeup()
+    this.setData({ makeupTracking: false, makeupOffset: 0 })
   },
   noop() {},
   pickDay(e) {

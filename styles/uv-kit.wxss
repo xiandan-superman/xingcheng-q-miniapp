@@ -501,9 +501,13 @@
 .uv-sk-w60 { width: 60%; }
 .uv-sk-w40 { width: 40%; }
 .uv-sk-w80 { width: 80%; }
+.uv-sk-stack { display:flex; flex-direction:column; gap:18rpx; width:100%; }
+.uv-sk-stack .uv-sk + .uv-sk { margin-top:0; }
+.uv-sk-card { padding:22rpx; border:3rpx solid rgba(23,25,31,.12); border-radius:20rpx; background:rgba(255,255,255,.62); }
+.uv-sk-card .uv-sk + .uv-sk { margin-top:16rpx; }
 
 /* ========== 6. 流光进度 ========== */
-/* 加到已有的 gp-fill / bar-fill / beam-seg 上即可，不改结构 */
+/* 加到已有的 bar-fill / beam-seg 上即可，不改结构 */
 .uv-flow {
   position: relative;
   overflow: hidden;
@@ -879,6 +883,15 @@
   transition: background .16s cubic-bezier(.22,1,.36,1);
 }
 .uv-sheet-grip.is-dragging { background: rgba(255, 138, 42, .75); }
+.uv-sheet-grip-hit {
+  min-height:64rpx;
+  display:flex;
+  align-items:flex-start;
+  justify-content:center;
+  box-sizing:border-box;
+  padding-top:4rpx;
+}
+.uv-sheet-grip-hit .uv-sheet-grip { margin:0; }
 .uv-sheet-drag {
   transition: transform .26s cubic-bezier(.22,1,.36,1);
   will-change: transform;

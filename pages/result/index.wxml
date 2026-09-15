@@ -126,19 +126,30 @@
 
   <!-- 底部操作（产品：主路径收敛） -->
   <view class="result-actions mt-l">
-    <button wx:if="{{practiceReview && hasPrevious}}" class="btn btn-ghost btn-block mb-s uv-press" bindtap="previous" hover-class="uv-press-hover" hover-start-time="0" hover-stay-time="120">上一题解析</button>
+    <!-- 主操作：任何场景只保留一个全宽按钮 -->
     <block wx:if="{{!finished}}">
       <button class="btn btn-yellow btn-block uv-press" disabled="{{submitting || imagesLoading || imageMessage}}" loading="{{submitting}}" bindtap="finish" hover-class="uv-press-hover" hover-start-time="0" hover-stay-time="120">{{practiceReview ? (hasNext ? '确认自评并看下一题' : '完成自评并查看汇总') : (hasNext ? '进入下一轨' : (scene === 'practice' ? '发送本轨信号' : '完成自评'))}}</button>
-      <button class="btn btn-ghost btn-block mt-s uv-press" bindtap="openCorrection" hover-class="uv-press-hover" hover-start-time="0" hover-stay-time="120">星图校准</button>
     </block>
-    <block wx:else>
-      <button wx:if="{{hasNext}}" class="btn btn-orange btn-block mb-s uv-press" bindtap="next" hover-class="uv-press-hover" hover-start-time="0" hover-stay-time="120">{{practiceReview ? '查看下一题解析' : '进入下一轨'}}</button>
-      <button wx:if="{{scene === 'practice' && !hasNext}}" class="btn btn-orange btn-block mb-s uv-press" bindtap="goPractice" hover-class="uv-press-hover" hover-start-time="0" hover-stay-time="120">返回练习舱</button>
-      <button wx:if="{{scene !== 'practice'}}" class="btn btn-yellow btn-block mb-s uv-press" bindtap="goToday" hover-class="uv-press-hover" hover-start-time="0" hover-stay-time="120">返回今日</button>
-      <button wx:if="{{scene === 'practice' && !hasNext}}" class="btn btn-ghost btn-block mb-s uv-press" bindtap="goToday" hover-class="uv-press-hover" hover-start-time="0" hover-stay-time="120">回今日星站</button>
-      <button wx:if="{{!allCorrect && !hasNext}}" class="btn btn-orange btn-block mb-s uv-press" bindtap="goWrong" hover-class="uv-press-hover" hover-start-time="0" hover-stay-time="120">校准错轨</button>
-      <button class="btn btn-ghost btn-block uv-press" bindtap="openCorrection" hover-class="uv-press-hover" hover-start-time="0" hover-stay-time="120">星图校准</button>
+    <block wx:elif="{{practiceReview && hasPrevious}}">
+      <button class="btn btn-yellow btn-block uv-press" bindtap="previous" hover-class="uv-press-hover" hover-start-time="0" hover-stay-time="120">上一题解析</button>
     </block>
+    <block wx:elif="{{hasNext}}">
+      <button class="btn btn-orange btn-block uv-press" bindtap="next" hover-class="uv-press-hover" hover-start-time="0" hover-stay-time="120">{{practiceReview ? '查看下一题解析' : '进入下一轨'}}</button>
+    </block>
+    <block wx:elif="{{scene === 'practice'}}">
+      <button class="btn btn-orange btn-block uv-press" bindtap="goPractice" hover-class="uv-press-hover" hover-start-time="0" hover-stay-time="120">返回练习舱</button>
+    </block>
+    <button wx:else class="btn btn-yellow btn-block uv-press" bindtap="goToday" hover-class="uv-press-hover" hover-start-time="0" hover-stay-time="120">返回今日</button>
+
+    <!-- 次级操作：入口全部保留，统一收进横向小按钮区 -->
+    <view class="result-actions-sub">
+      <button wx:if="{{!finished && practiceReview && hasPrevious}}" class="btn btn-small btn-ghost uv-press" bindtap="previous" hover-class="uv-press-hover" hover-start-time="0" hover-stay-time="120">上一题解析</button>
+      <button wx:if="{{finished && practiceReview && hasPrevious && hasNext}}" class="btn btn-small btn-ghost uv-press" bindtap="next" hover-class="uv-press-hover" hover-start-time="0" hover-stay-time="120">查看下一题解析</button>
+      <button wx:if="{{finished && practiceReview && hasPrevious && !hasNext}}" class="btn btn-small btn-ghost uv-press" bindtap="goPractice" hover-class="uv-press-hover" hover-start-time="0" hover-stay-time="120">返回练习舱</button>
+      <button wx:if="{{finished && scene === 'practice' && !hasNext}}" class="btn btn-small btn-ghost uv-press" bindtap="goToday" hover-class="uv-press-hover" hover-start-time="0" hover-stay-time="120">回今日星站</button>
+      <button wx:if="{{finished && !allCorrect && !hasNext}}" class="btn btn-small btn-ghost uv-press" bindtap="goWrong" hover-class="uv-press-hover" hover-start-time="0" hover-stay-time="120">校准错轨</button>
+      <button class="btn btn-small btn-ghost uv-press" bindtap="openCorrection" hover-class="uv-press-hover" hover-start-time="0" hover-stay-time="120">星图校准</button>
+    </view>
   </view>
   </block>
 
@@ -148,8 +159,10 @@
 
   <!-- 纠错弹层（与 quiz SCREEN9 对齐） -->
   <view wx:if="{{showCorrection}}" class="overlay uv-taprow" bindtap="closeCorrection" hover-class="uv-taprow-hover" hover-start-time="0" hover-stay-time="80" >
-    <view class="sheet corr-sheet" catchtap="noop">
-      <view class="sheet-handle"></view>
+    <view class="sheet corr-sheet uv-sheet-drag {{correctionTracking ? 'is-tracking' : ''}}" style="transform:translateY({{correctionOffset}}px)" catchtap="noop">
+      <view class="uv-sheet-grip-hit" bindtouchstart="onCorrectionGripStart" catchtouchmove="onCorrectionGripMove" bindtouchend="onCorrectionGripEnd" bindtouchcancel="onCorrectionGripEnd">
+        <view class="uv-sheet-grip {{correctionTracking ? 'is-dragging' : ''}}"></view>
+      </view>
       <view class="corr-head">
         <view class="sheet-title" style="text-align:center">题目反馈 · 星图<text class="h-cyan">校准</text></view>
         <view class="corr-sub">发现星图有偏差？帮我们校准它 ✦</view>

@@ -15,7 +15,10 @@
 .filters { display: flex; flex-direction: row; }
 .filter-pill {
   flex: none;
-  padding: 10rpx 24rpx;
+  min-height: 64rpx;
+  box-sizing: border-box;
+  padding: 12rpx 24rpx;
+  line-height: 1.6;
   font-size: 24rpx;
   display: inline-flex; align-items: center; gap: 8rpx;
 }
@@ -60,7 +63,6 @@
 
 /* 已确认的页面细节优化：不修改角色选择器 */
 .wc-body { min-width:0; }
-.empty-sub { line-height:1.8; }
 .filter-pill { transition:background-color .18s ease; }
 .reduce-motion .filter-pill { transition:none; }
 .system-error { display:flex; flex-direction:column; align-items:center; text-align:center; }

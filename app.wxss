@@ -324,7 +324,6 @@ textarea.input-box { min-height: 180rpx; line-height: 1.6; }
   overflow-y: auto;
   animation: sheet-up .26s cubic-bezier(.22,1.1,.36,1);
 }
-.sheet-handle { width: 72rpx; height: 8rpx; border-radius: 99rpx; background: rgba(23,25,31,.22); margin: 0 auto 18rpx; }
 .sheet-title {
   font-family: "ZCOOL KuaiLe Local", sans-serif;
   font-size: 42rpx; text-align: center; margin-bottom: 8rpx;
@@ -343,13 +342,20 @@ textarea.input-box { min-height: 180rpx; line-height: 1.6; }
 .notice image { width: 36rpx; height: 36rpx; flex: none; }
 .notice-warm { border-color: rgba(255,138,42,.55); background: var(--orange-bg); color: #9A4B06; }
 
-/* ================= 空状态 ================= */
-.empty-state { padding: 80rpx 40rpx; text-align: center; }
-.empty-state .empty-title {
+/* ================= 统一空状态 ================= */
+.uv-empty { display:flex; flex-direction:column; align-items:center; padding:64rpx 36rpx 36rpx; text-align:center; }
+.uv-empty-title {
   font-family: "ZCOOL KuaiLe Local", sans-serif;
-  font-size: 40rpx; margin: 20rpx 0 10rpx;
+  font-size:36rpx; margin:18rpx 0 10rpx; color:var(--ink);
 }
-.empty-state .empty-sub { color: #2F3640; font-size: 25rpx; }
+.uv-empty-sub { color:#2F3640; font-size:24rpx; line-height:1.65; }
+.uv-empty-action { margin-top:24rpx; }
+.uv-empty-compact { padding:18rpx 20rpx 12rpx; }
+.uv-empty-compact .uv-empty-title { font-size:28rpx; margin:8rpx 0 6rpx; }
+.uv-empty-compact .uv-empty-sub { font-size:22rpx; line-height:1.45; }
+.uv-empty-inline { align-items:flex-start; padding:0; text-align:left; }
+.uv-empty-inline .uv-empty-title { margin:0; font-size:27rpx; }
+.uv-empty-inline .uv-empty-sub { margin-top:8rpx; font-size:21rpx; }
 
 /* ================= 布局工具 ================= */
 .row { display: flex; flex-direction: row; align-items: center; }
@@ -396,7 +402,7 @@ textarea.input-box { min-height: 180rpx; line-height: 1.6; }
 .page-fade.reduce-motion { animation: none; }
 
 /* 展示字体统一应用 */
-.brand-name, .hero-title, .page-title, .sec-title, .sheet-title, .empty-title,
+.brand-name, .hero-title, .page-title, .sec-title, .sheet-title, .uv-empty-title,
 .btn, .sticker, .report-title, .status-title, .point-name, .wrong-title,
 .profile-name, .energy-num, .big-num {
   font-family: "ZCOOL KuaiLe Local", sans-serif;

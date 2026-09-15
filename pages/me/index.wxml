@@ -80,12 +80,13 @@
           <view class="time-slots row wrap gap-s">
             <view wx:for="{{timeSlots}}" wx:key="*this" data-t="{{item}}" bindtap="setReminderTime"
               class="time-slot {{reminderTime === item ? 'slot-on' : ''}} uv-taprow"
+              role="button" aria-label="提醒时间 {{item}}" aria-pressed="{{reminderTime === item}}"
               hover-class="uv-taprow-hover" hover-start-time="0" hover-stay-time="80">{{item}}</view>
           </view>
           <view class="time-picker">每天 {{reminderTime}} · 点击档位修改</view>
         </view>
       </view>
-      <view class="uv-toggle {{remind ? 'is-on' : ''}}" hover-class="uv-toggle-hover" hover-start-time="0" hover-stay-time="120" bindtap="toggleRemind"><view class="uv-toggle-knob"></view></view>
+      <view class="uv-toggle {{remind ? 'is-on' : ''}}" role="switch" aria-label="星能提醒" aria-checked="{{remind}}" hover-class="uv-toggle-hover" hover-start-time="0" hover-stay-time="120" bindtap="toggleRemind"><view class="uv-toggle-knob"></view></view>
     </view>
     <view class="switch-row">
       <view class="row gap-s">
@@ -95,7 +96,7 @@
           <view class="text-secondary" style="font-size:21rpx">使用静态关键帧与淡入淡出</view>
         </view>
       </view>
-      <view class="uv-toggle {{reduceMotion ? 'is-on' : ''}}" hover-class="uv-toggle-hover" hover-start-time="0" hover-stay-time="120" bindtap="toggleMotion"><view class="uv-toggle-knob"></view></view>
+      <view class="uv-toggle {{reduceMotion ? 'is-on' : ''}}" role="switch" aria-label="减少动态" aria-checked="{{reduceMotion}}" hover-class="uv-toggle-hover" hover-start-time="0" hover-stay-time="120" bindtap="toggleMotion"><view class="uv-toggle-knob"></view></view>
     </view>
     <view class="menu-item uv-taprow" data-title="星航隐私条款" bindtap="showPolicy" hover-class="uv-taprow-hover" hover-start-time="0" hover-stay-time="80" ><text>星航隐私条款</text><text class="menu-tail">查看全文 ›</text></view>
     <view class="menu-item uv-taprow" data-title="星航用户协议" bindtap="showPolicy" hover-class="uv-taprow-hover" hover-start-time="0" hover-stay-time="80" ><text>星航用户协议</text><text class="menu-tail">查看全文 ›</text></view>
@@ -104,8 +105,10 @@
 
   <!-- 校准记录：半屏贴底，空态矮，避开自定义 tabBar -->
   <view wx:if="{{showCorrections}}" class="overlay corr-overlay uv-taprow" bindtap="closeCorrections" hover-class="uv-taprow-hover" hover-start-time="0" hover-stay-time="80" >
-    <view class="sheet corr-sheet-compact {{correctionsList.length ? 'has-list' : 'is-empty'}}" catchtap="noop">
-      <view class="sheet-handle"></view>
+    <view class="sheet corr-sheet-compact uv-sheet-drag {{correctionsList.length ? 'has-list' : 'is-empty'}} {{correctionsTracking ? 'is-tracking' : ''}}" style="transform:translateY({{correctionsOffset}}px)" catchtap="noop">
+      <view class="uv-sheet-grip-hit" bindtouchstart="onCorrectionsGripStart" catchtouchmove="onCorrectionsGripMove" bindtouchend="onCorrectionsGripEnd" bindtouchcancel="onCorrectionsGripEnd">
+        <view class="uv-sheet-grip {{correctionsTracking ? 'is-dragging' : ''}}"></view>
+      </view>
       <view class="row between mb-s">
         <view>
           <view class="eyebrow">CALIBRATION LOG</view>
@@ -131,12 +134,13 @@
           <button wx:if="{{correctionsHasMore}}" class="btn btn-ghost btn-block correction-more uv-press" loading="{{correctionsLoading}}" disabled="{{correctionsLoading}}" bindtap="loadMoreCorrections" hover-class="uv-press-hover" hover-start-time="0" hover-stay-time="120">{{correctionsLoading ? '正在读取…' : '加载更早记录'}}</button>
         </view>
       </scroll-view>
-      <view wx:elif="{{correctionsLoading}}" class="corr-empty">
-        <view class="corr-empty-title">正在读取校准记录…</view>
+      <view wx:elif="{{correctionsLoading}}" class="correction-skeleton uv-sk-stack" aria-hidden="true">
+        <view wx:for="{{3}}" wx:key="*this" class="uv-sk-card"><view class="uv-sk uv-sk-lg uv-sk-w40"></view><view class="uv-sk uv-sk-w80"></view><view class="uv-sk uv-sk-w60"></view></view>
       </view>
-      <view wx:else class="corr-empty">
-        <view class="corr-empty-title">暂无校准记录</view>
-        <view class="corr-empty-sub">你在答题页提交的反馈会出现在这里。</view>
+      <view wx:else class="uv-empty uv-empty-compact">
+        <xingcheng-q-scene scene="empty" motion="{{reduceMotion ? 'still' : 'auto'}}" size="128"/>
+        <view class="uv-empty-title">暂无校准记录</view>
+        <view class="uv-empty-sub">你在答题页提交的反馈会出现在这里。</view>
       </view>
       <button class="btn btn-yellow btn-block mt-s uv-press" bindtap="closeCorrections" hover-class="uv-press-hover" hover-start-time="0" hover-stay-time="120">收起记录</button>
     </view>

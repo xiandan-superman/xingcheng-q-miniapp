@@ -5,7 +5,7 @@
     <text class="uv-toast-txt">{{uvToast.text}}</text>
     <view class="uv-toast-bar"></view>
   </view>
-  <view wx:if="{{networkRecovered}}" class="network-recovered card card-data"><xingcheng-q-scene scene="recovered" motion="{{reduceMotion ? 'still' : 'auto'}}" size="160"/><view><view class="makeup-empty-title">星图已重新接通</view><view class="makeup-empty-sub">内容已经恢复，可以继续使用。</view></view></view>
+  <view wx:if="{{networkRecovered}}" class="network-recovered card card-data"><xingcheng-q-scene scene="recovered" motion="{{reduceMotion ? 'still' : 'auto'}}" size="160"/><view><view class="status-title">星图已重新接通</view><view class="status-sub">内容已经恢复，可以继续使用。</view></view></view>
   <!-- 顶部品牌锁（与微信胶囊同高，右侧留给胶囊） -->
   <view class="topbar brand-row">
     <view class="brand-lock">
@@ -98,8 +98,10 @@
 
   <!-- 补卡弹层 -->
   <view wx:if="{{showMakeup}}" class="overlay uv-taprow" bindtap="closeMakeup" hover-class="uv-taprow-hover" hover-start-time="0" hover-stay-time="80" >
-    <view class="sheet makeup-sheet" catchtap="noop">
-      <view class="sheet-handle"></view>
+    <view class="sheet makeup-sheet uv-sheet-drag {{makeupTracking ? 'is-tracking' : ''}}" style="transform:translateY({{makeupOffset}}px)" catchtap="noop">
+      <view class="uv-sheet-grip-hit" bindtouchstart="onMakeupGripStart" catchtouchmove="onMakeupGripMove" bindtouchend="onMakeupGripEnd" bindtouchcancel="onMakeupGripEnd">
+        <view class="uv-sheet-grip {{makeupTracking ? 'is-dragging' : ''}}"></view>
+      </view>
       <view class="makeup-head mb-s">
         <view class="eyebrow">TIME TRACE</view>
         <view class="sheet-title" style="text-align:left">补签记录 · 回溯补能</view>
@@ -111,12 +113,13 @@
       </view>
       <view wx:if="{{makeupSuccess}}" class="makeup-success mb">
         <xingcheng-q-scene scene="makeup" motion="{{reduceMotion ? 'still' : 'auto'}}" size="220"/>
-        <view class="makeup-empty-title">回溯补能成功</view>
-        <view class="makeup-empty-sub">漏掉的星能已经找回，星轨记录已更新。</view>
+        <view class="status-title">回溯补能成功</view>
+        <view class="status-sub">漏掉的星能已经找回，星轨记录已更新。</view>
       </view>
-      <view wx:elif="{{tickets <= 0}}" class="makeup-empty mb">
-        <view class="makeup-empty-title">暂无补能券</view>
-        <view class="makeup-empty-sub">完成连续星能或活动补给后可回溯最近 30 天漏打日期。</view>
+      <view wx:elif="{{tickets <= 0}}" class="uv-empty uv-empty-compact mb">
+        <xingcheng-q-scene scene="empty" motion="{{reduceMotion ? 'still' : 'auto'}}" size="120"/>
+        <view class="uv-empty-title">暂无补能券</view>
+        <view class="uv-empty-sub">完成连续星能或活动补给后可回溯最近 30 天漏打日期。</view>
       </view>
       <scroll-view wx:if="{{!makeupSuccess}}" scroll-y class="makeup-scroll" enhanced show-scrollbar="{{true}}">
         <view class="makeup-strip">

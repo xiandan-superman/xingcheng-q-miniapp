@@ -17,10 +17,17 @@
     </view>
   </view>
   <view wx:if="{{loading}}" class="notice mt load-inline">
-  <xingcheng-q-scene scene="loading" motion="{{reduceMotion ? 'still' : 'auto'}}" size="200"/>
-  <view class="load-txt">正在读取知识点…</view>
-</view>
-<view wx:elif="{{message}}" class="notice mt system-error uv-taprow" bindtap="onShow" hover-class="uv-taprow-hover" hover-start-time="0" hover-stay-time="80"><xingcheng-q-scene scene="failure" motion="{{reduceMotion ? 'still' : 'auto'}}" size="144"/><view>{{message}} · 点击重试</view></view>
+    <xingcheng-q-scene scene="loading" motion="{{reduceMotion ? 'still' : 'auto'}}" size="160"/>
+    <view class="load-txt">正在读取知识点…</view>
+  </view>
+  <view wx:if="{{loading}}" class="uv-sk-stack mt" aria-hidden="true">
+    <view class="uv-sk uv-sk-block"></view>
+    <view class="uv-sk-card"><view class="uv-sk uv-sk-lg uv-sk-w60"></view><view class="uv-sk uv-sk-w80"></view></view>
+    <view class="uv-sk-card"><view class="uv-sk uv-sk-lg uv-sk-w40"></view><view class="uv-sk uv-sk-w60"></view></view>
+  </view>
+  <view wx:elif="{{message}}" class="notice mt system-error uv-taprow" bindtap="onShow" hover-class="uv-taprow-hover" hover-start-time="0" hover-stay-time="80"><xingcheng-q-scene scene="failure" motion="{{reduceMotion ? 'still' : 'auto'}}" size="144"/><view>{{message}} · 点击重试</view></view>
+
+  <block wx:else>
 
   <view wx:if="{{hasDraft}}" class="resume-card card card-data mt uv-press" bindtap="continuePractice" hover-class="uv-press-hover" hover-start-time="0" hover-stay-time="120">
     <view class="flex1"><view class="resume-title">继续未完成的练习</view><view class="flow-hint">从上次保存的位置接续星轨 ›</view></view>
@@ -59,4 +66,5 @@
   </view>
 
   <button class="btn btn-orange btn-block mt-l uv-press" disabled="{{starting || loading || !selectedCount}}" loading="{{starting}}" bindtap="start" hover-class="uv-press-hover" hover-start-time="0" hover-stay-time="120">进入训练舱</button>
+  </block>
 </view>

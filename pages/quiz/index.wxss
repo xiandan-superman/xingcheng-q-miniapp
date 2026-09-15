@@ -140,19 +140,6 @@
 
 /* 题组进度 */
 .group-prog { margin: 8rpx 4rpx 0; }
-.gp-bar {
-  height: 18rpx;
-  border-radius: 99rpx;
-  border: 2rpx solid var(--ink);
-  background: rgba(23,25,31,.08);
-  overflow: hidden;
-}
-.gp-fill {
-  height: 100%;
-  background: linear-gradient(90deg, var(--cyan), var(--orange));
-  border-radius: 99rpx;
-  transition: width .4s ease;
-}
 .gp-copy { font-size: 21rpx; margin-top: 8rpx; }
 
 /* 选择题选项 */

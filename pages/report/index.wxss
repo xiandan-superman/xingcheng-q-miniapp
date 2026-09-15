@@ -106,3 +106,4 @@
 
 .score-sub { display:block; margin-top:8rpx; }
 .score-label { min-width:0; flex:1; }
+.score-label.uv-empty-inline .score-sub { color:#2F3640; font-weight:400; }

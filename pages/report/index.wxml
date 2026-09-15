@@ -29,7 +29,7 @@
         style="background-image:conic-gradient(from -90deg,#FFC24D 0deg,#FF8A2A {{accuracy * 1.8}}deg,#E23A18 {{accuracy * 3.6}}deg,#E4DCC6 {{accuracy * 3.6}}deg)">
         <view class="uv-ring-hole"><text class="uv-ring-num">{{!loading && !message && total === 0 ? '—' : accuracy + '%'}}</text></view>
       </view>
-      <view class="score-label"><view>星轨稳定度</view><text class="score-sub">{{!loading && !message && total === 0 ? '近7天暂无作答记录' : '近7天实际作答统计'}}</text></view>
+      <view class="score-label {{!loading && !message && total === 0 ? 'uv-empty uv-empty-inline' : ''}}"><view class="{{!loading && !message && total === 0 ? 'uv-empty-title' : ''}}">星轨稳定度</view><text class="score-sub {{!loading && !message && total === 0 ? 'uv-empty-sub' : ''}}">{{!loading && !message && total === 0 ? '近7天暂无作答记录' : '近7天实际作答统计'}}</text></view>
     </view>
 
     <view class="sc-stats">

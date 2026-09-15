@@ -114,6 +114,10 @@
 .reminder-copy { min-width: 0; flex: 1; align-items: flex-start; }
 .time-slots { margin-top: 14rpx; }
 .time-slot {
+  min-height:64rpx;
+  box-sizing:border-box;
+  display:inline-flex;
+  align-items:center;
   padding: 9rpx 16rpx;
   border: 3rpx solid var(--ink);
   border-radius: 999rpx;
@@ -187,16 +191,7 @@
 }
 .correction-list { padding-bottom: 8rpx; }
 .correction-more { margin: 10rpx 0 16rpx; }
-.corr-empty {
-  padding: 12rpx 12rpx 8rpx;
-  text-align: center;
-}
-.corr-empty-title {
-  font-family: "ZCOOL KuaiLe Local", sans-serif;
-  font-size: 32rpx;
-  margin-bottom: 8rpx;
-}
-.corr-empty-sub { font-size: 22rpx; color: var(--muted); line-height: 1.45; }
+.correction-skeleton { min-height:300rpx; padding:8rpx 2rpx 16rpx; box-sizing:border-box; }
 
 .correction-reply { margin-top: 16rpx; padding: 16rpx; border-radius: 16rpx; background: rgba(255, 181, 65, .10); }
 .correction-reply-title { font-size: 23rpx; font-weight: 700; margin-bottom: 8rpx; }

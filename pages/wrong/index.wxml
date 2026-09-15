@@ -14,9 +14,9 @@
       <view class="filter-dim-label">知识点</view>
       <scroll-view class="filter-scroll" scroll-x enable-flex>
         <view class="filters row gap-s">
-          <view class="pill filter-pill {{kpAll ? 'filter-on' : ''}} uv-taprow" data-kp="all" bindtap="toggleKp" hover-class="uv-taprow-hover" hover-start-time="0" hover-stay-time="80" >全部</view>
+          <view class="pill filter-pill {{kpAll ? 'filter-on' : ''}} uv-taprow" data-kp="all" bindtap="toggleKp" role="button" aria-label="知识点：全部" aria-pressed="{{kpAll}}" hover-class="uv-taprow-hover" hover-start-time="0" hover-stay-time="80" >全部</view>
           <view wx:for="{{kpOptions}}" wx:key="id" class="pill filter-pill {{item.on ? 'filter-on' : ''}} uv-taprow"
-            data-kp="{{item.id}}" bindtap="toggleKp" hover-class="uv-taprow-hover" hover-start-time="0" hover-stay-time="80" >{{item.name}}</view>
+            data-kp="{{item.id}}" bindtap="toggleKp" role="button" aria-label="知识点：{{item.name}}" aria-pressed="{{item.on}}" hover-class="uv-taprow-hover" hover-start-time="0" hover-stay-time="80" >{{item.name}}</view>
         </view>
       </scroll-view>
     </view>
@@ -24,34 +24,34 @@
       <view class="filter-dim-label">难度</view>
       <view class="filters row gap-s wrap">
         <view wx:for="{{diffOptions}}" wx:key="key" data-diff="{{item.key}}" bindtap="setDiff"
-          class="pill filter-pill {{diffFilter === item.key ? 'filter-on' : ''}} uv-taprow" hover-class="uv-taprow-hover" hover-start-time="0" hover-stay-time="80" >{{item.label}}</view>
+          class="pill filter-pill {{diffFilter === item.key ? 'filter-on' : ''}} uv-taprow" role="button" aria-label="难度：{{item.label}}" aria-pressed="{{diffFilter === item.key}}" hover-class="uv-taprow-hover" hover-start-time="0" hover-stay-time="80" >{{item.label}}</view>
       </view>
     </view>
     <view class="filter-dim">
       <view class="filter-dim-label">添加时间</view>
       <view class="filters row gap-s wrap">
         <view wx:for="{{timeOptions}}" wx:key="key" data-time="{{item.key}}" bindtap="setTime"
-          class="pill filter-pill {{timeFilter === item.key ? 'filter-on' : ''}} uv-taprow" hover-class="uv-taprow-hover" hover-start-time="0" hover-stay-time="80" >{{item.label}}</view>
+          class="pill filter-pill {{timeFilter === item.key ? 'filter-on' : ''}} uv-taprow" role="button" aria-label="添加时间：{{item.label}}" aria-pressed="{{timeFilter === item.key}}" hover-class="uv-taprow-hover" hover-start-time="0" hover-stay-time="80" >{{item.label}}</view>
       </view>
     </view>
     <view class="filter-dim">
       <view class="filter-dim-label">掌握状态</view>
       <view class="filters row gap-s wrap">
         <view wx:for="{{masteryOptions}}" wx:key="key" data-mastery="{{item.key}}" bindtap="setMastery"
-          class="pill filter-pill {{masteryFilter === item.key ? 'filter-on' : ''}} uv-taprow" hover-class="uv-taprow-hover" hover-start-time="0" hover-stay-time="80" >
+          class="pill filter-pill {{masteryFilter === item.key ? 'filter-on' : ''}} uv-taprow" role="button" aria-label="掌握状态：{{item.label}}" aria-pressed="{{masteryFilter === item.key}}" hover-class="uv-taprow-hover" hover-start-time="0" hover-stay-time="80" >
           <text wx:if="{{item.dot}}" class="filter-dot" style="background:{{item.dot}}"></text>{{item.label}}
         </view>
       </view>
     </view>
   </view>
 
-  <view wx:if="{{loading}}" class="notice mt load-inline">
-  <xingcheng-q-scene scene="loading" motion="{{reduceMotion ? 'still' : 'auto'}}" size="200"/>
-  <view class="load-txt">正在读取错题…</view>
-</view>
-<view wx:elif="{{message}}" class="notice mt system-error uv-taprow" bindtap="onShow" hover-class="uv-taprow-hover" hover-start-time="0" hover-stay-time="80"><xingcheng-q-scene scene="failure" motion="{{reduceMotion ? 'still' : 'auto'}}" size="144"/><view>{{message}} · 点击重试</view></view>
+  <view wx:if="{{loading}}" class="wrong-loading mt">
+    <view class="notice load-inline"><xingcheng-q-scene scene="loading" motion="{{reduceMotion ? 'still' : 'auto'}}" size="160"/><view class="load-txt">正在读取错题…</view></view>
+    <view class="uv-sk-stack mt" aria-hidden="true"><view wx:for="{{3}}" wx:key="*this" class="uv-sk uv-sk-block"></view></view>
+  </view>
+  <view wx:elif="{{message}}" class="notice mt system-error uv-taprow" bindtap="onShow" hover-class="uv-taprow-hover" hover-start-time="0" hover-stay-time="80"><xingcheng-q-scene scene="failure" motion="{{reduceMotion ? 'still' : 'auto'}}" size="144"/><view>{{message}} · 点击重试</view></view>
   <!-- 错题列表 -->
-  <view wx:if="{{items.length}}" class="wrong-list">
+  <view wx:elif="{{items.length}}" class="wrong-list">
     <view wx:for="{{items}}" wx:key="id" class="wrong-card card {{item.state === 'mastered' ? 'card-ok' : 'card-err'}} mt">
       <view class="wc-side {{item.state === 'mastered' ? 'side-ok' : 'side-err'}}"></view>
       <view class="wc-body">
@@ -83,12 +83,12 @@
   </view>
 
   <!-- 空状态 -->
-  <view wx:elif="{{!loading && !message}}" class="empty-state">
+  <view wx:else class="uv-empty">
     <xingcheng-q-scene scene="empty" motion="{{reduceMotion ? 'still' : 'auto'}}" size="160"/>
-    <view class="empty-title">当前列表没有错题</view>
-    <view class="empty-sub">可以调整上方筛选查看其他错题，或进入训练舱开始练习。</view>
-    <button class="btn btn-orange mt uv-press" bindtap="goPractice" hover-class="uv-press-hover" hover-start-time="0" hover-stay-time="120">去训练舱看看</button>
+    <view class="uv-empty-title">当前列表没有错题</view>
+    <view class="uv-empty-sub">可以调整上方筛选查看其他错题，或进入训练舱开始练习。</view>
+    <button class="btn btn-small btn-orange uv-empty-action uv-press" bindtap="goPractice" hover-class="uv-press-hover" hover-start-time="0" hover-stay-time="120">去训练舱看看</button>
   </view>
-  <view wx:if="{{items.length}}" class="text-secondary mt" style="text-align:center">已显示 {{items.length}} / {{totalCount}} 道错题</view>
-  <button wx:if="{{hasMore}}" class="btn btn-ghost mt load-more uv-press" bindtap="onReachBottom" hover-class="uv-press-hover" hover-start-time="0" hover-stay-time="120">加载更多错题</button>
+  <view wx:if="{{!loading && !message && items.length}}" class="text-secondary mt" style="text-align:center">已显示 {{items.length}} / {{totalCount}} 道错题</view>
+  <button wx:if="{{!loading && !message && hasMore}}" class="btn btn-ghost mt load-more uv-press" bindtap="onReachBottom" hover-class="uv-press-hover" hover-start-time="0" hover-stay-time="120">加载更多错题</button>
 </view>

@@ -38,7 +38,10 @@
   <scroll-view wx:elif="{{question}}" scroll-y class="quiz-scroll" scroll-into-view="{{scrollIntoView}}" scroll-with-animation="{{!reduceMotion}}" enable-flex style="height:{{scrollH}}px">
     <!-- 题组进度（专项训练） -->
     <view wx:if="{{isGroup}}" class="group-prog">
-      <view class="gp-bar"><view class="gp-fill" style="width:{{(groupIndex) / groupTotal * 100}}%"></view></view>
+      <view class="uv-segs" role="progressbar" aria-label="答题进度，第 {{groupIndex + 1}} 题，共 {{groupTotal}} 题">
+        <view wx:for="{{groupTotal}}" wx:key="*this"
+          class="uv-seg {{index <= groupIndex ? 'is-on' : ''}} {{index === groupIndex ? 'is-tip' : ''}}"></view>
+      </view>
       <view class="row between gp-copy"><text class="muted">第 {{groupIndex + 1}} / {{groupTotal}} 题</text><text class="muted">已答 {{groupIndex}} 题</text></view>
     </view>
     <view wx:if="{{isGroup}}" class="flow-hint">整套答完后，统一查看答案与自评</view>
@@ -82,6 +85,7 @@
     <view wx:if="{{isChoice}}" class="options mt {{question.kind === 'multi' ? 'is-multi' : ''}}">
       <view wx:for="{{optionNodes}}" wx:key="key"
         class="uv-radio-orbit {{item.selected ? 'is-on' : ''}} card-in"
+        role="radio" aria-checked="{{item.selected}}" aria-label="{{item.mark || item.key}}：{{item.text}}"
         hover-class="uv-taprow-hover" hover-start-time="0" hover-stay-time="80"
         data-key="{{item.key}}" bindtap="choose">
         <view class="uv-radio-planet"><text class="uv-radio-key">{{item.mark || item.key}}</text></view>
@@ -129,8 +133,10 @@
 
   <!-- 纠错弹层（SCREEN9 最小集） -->
   <view wx:if="{{showCorrection}}" class="overlay uv-taprow" bindtap="closeCorrection" hover-class="uv-taprow-hover" hover-start-time="0" hover-stay-time="80" >
-    <view class="sheet corr-sheet" catchtap="noop">
-      <view class="sheet-handle"></view>
+    <view class="sheet corr-sheet uv-sheet-drag {{correctionTracking ? 'is-tracking' : ''}}" style="transform:translateY({{correctionOffset}}px)" catchtap="noop">
+      <view class="uv-sheet-grip-hit" bindtouchstart="onCorrectionGripStart" catchtouchmove="onCorrectionGripMove" bindtouchend="onCorrectionGripEnd" bindtouchcancel="onCorrectionGripEnd">
+        <view class="uv-sheet-grip {{correctionTracking ? 'is-dragging' : ''}}"></view>
+      </view>
       <view class="corr-head">
         <view class="sheet-title" style="text-align:center">题目反馈 · 星图<text class="h-cyan">校准</text></view>
         <view class="corr-sub">发现星图有偏差？帮我们校准它 ✦</view>

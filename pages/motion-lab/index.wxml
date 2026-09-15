@@ -25,6 +25,7 @@
         <view class="lab-note">拨到左边（灰档）= 动画开；拨到右边（橙色）= 全页动画与过渡立刻静止。此开关本身就是 <text class="code">uv-toggle</text> 的演示。</view>
       </view>
       <view class="uv-toggle {{reduceMotion ? 'is-on' : ''}}"
+        role="switch" aria-label="减少动态" aria-checked="{{reduceMotion}}"
         hover-class="uv-toggle-hover" hover-start-time="0"
         bindtap="toggleMotion">
         <view class="uv-toggle-knob"></view>

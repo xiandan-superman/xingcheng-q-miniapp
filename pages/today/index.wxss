@@ -109,14 +109,6 @@
   font-size: 27rpx;
   font-weight: 700;
 }
-.makeup-empty {
-  padding: 20rpx 22rpx;
-  border: 3rpx dashed rgba(255,138,42,.55);
-  border-radius: 18rpx;
-  background: rgba(255,138,42,.08);
-}
-.makeup-empty-title { font-size: 28rpx; font-weight: 800; margin-bottom: 6rpx; }
-.makeup-empty-sub { font-size: 22rpx; color: var(--muted); line-height: 1.45; }
 .home-theater { flex:none; width:330rpx; height:330rpx; display:flex; justify-content:center; align-items:center; margin:0 -12rpx 0 0; }
 .load-inline { min-height:116rpx; display:flex; align-items:center; justify-content:center; gap:20rpx; padding:20rpx 28rpx; }
 .load-orbit { position:relative; width:54rpx; height:54rpx; flex:none; border:3rpx dashed var(--orange); border-radius:50%; animation:load-orbit-spin 1.25s linear infinite; }
@@ -127,6 +119,8 @@
 .completion-q { display:flex; justify-content:center; height:200rpx; margin:-8rpx 0 4rpx; }
 .system-card { display:flex; flex-direction:column; align-items:center; text-align:center; gap:8rpx; padding:24rpx; }
 .makeup-success { text-align:center; display:flex; flex-direction:column; align-items:center; }
+.status-title { font-size:28rpx; font-weight:800; margin-bottom:6rpx; }
+.status-sub { font-size:22rpx; color:var(--muted); line-height:1.45; }
 .network-recovered { position:fixed; left:32rpx; right:32rpx; top:180rpx; z-index:90; display:flex; align-items:center; gap:16rpx; padding:10rpx 20rpx; }
 /* R11 真机393：弹层贴底限高，避开顶栏；grid 可滚，末行不被底栏裁切 */
 .makeup-sheet {

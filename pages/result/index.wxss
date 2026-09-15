@@ -81,6 +81,9 @@
   font-weight: 700;
 }
 
+.result-actions-sub { display:flex; flex-direction:row; flex-wrap:wrap; justify-content:center; gap:16rpx; margin-top:18rpx; }
+.result-actions-sub .btn { flex:1 1 190rpx; max-width:calc(50% - 8rpx); margin:0; }
+
 /* 纠错弹层 SCREEN9（与 quiz 对齐） */
 .corr-sheet { max-height: 92vh; overflow-y: auto; }
 .corr-head { margin-bottom: 16rpx; }
